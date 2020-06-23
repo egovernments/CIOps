@@ -47,7 +47,7 @@ spec:
         memory: "3572Mi"
         cpu: "1500m"      
   - name: git
-    image: docker.io/nithindv/alpine-git:latest
+    image: docker.io/egovio/builder:1-master-77a500ed
     imagePullPolicy: IfNotPresent
     command:
     - cat
