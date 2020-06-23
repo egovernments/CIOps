@@ -47,7 +47,7 @@ spec:
         memory: "3572Mi"
         cpu: "1500m"      
   - name: git
-    image: docker.io/egovio/builder:1-master-77a500ed
+    image: docker.io/egovio/builder:2-64da60a1-version_script_update-NA
     imagePullPolicy: IfNotPresent
     command:
     - cat
