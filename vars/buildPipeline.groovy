@@ -86,10 +86,10 @@ spec:
                              "PATH=alpine:$PATH"
                     ]) {
                         container(name: 'git', shell: '/bin/sh') {
-                            scmVars['ACTUAL_COMMIT'] = sh (script:
+                            scmVars['VERSION'] = sh (script:
                                     '/scripts/get_application_version.sh ${BUILD_PATH}',
                                     returnStdout: true).trim()
-                            scmVars['VERSION'] = sh (script:
+                            scmVars['ACTUAL_COMMIT'] = sh (script:
                                     '/scripts/get_folder_commit.sh ${BUILD_PATH}',
                                     returnStdout: true).trim()
                             scmVars['BRANCH'] = scmVars['GIT_BRANCH'].replaceFirst("origin/", "")
