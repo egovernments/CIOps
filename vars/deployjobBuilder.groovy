@@ -55,12 +55,10 @@ spec:
             String dirName = Utils.getDirName(url);
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
-                 def folder = readFile(folderdir).split("\n").each { line ->
-                  sh """
-                  echo \"Folder:  ${line}\"
-                  """
-                   dirs << line
-                 };
+
+                def fileList = "ls ${folderdir}".execute()
+                def dirs= []
+                fileList.text.eachLine {dirs.add(it)}
                  
              sh """
           echo \"Folders:  ${dirs}\"
