@@ -55,11 +55,12 @@ spec:
             String dirName = Utils.getDirName(url);
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
-
-               dirs = Utils.listFiles(folderdir)
+                dirs = findFiles(glob: folderdir)
+              // dirs = Utils.listFiles(folderdir)
                  
              sh """
           echo \"Folders:  ${dirs}\"
+           echo \"Folder:  ${dirs[0].name}\"
            """
 
             for (int i = 0; i < dirs.size(); i++) {
