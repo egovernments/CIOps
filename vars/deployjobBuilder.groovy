@@ -45,8 +45,8 @@ spec:
         node(POD_LABEL) {
         
         String url = "git@github.com:egovernments/DIGIT-DevOps.git";
-        String folderDir = "./deploy-as-code/helm/release_charts"
-        String envDir = "./deploy-as-code/helm/environments"
+        String folderdir = "./deploy-as-code/helm/release_charts"
+        String envdir = "./deploy-as-code/helm/environments"
         def dirs = []
         def envs = []
         Map<String,List<String>> jobmap = new HashMap<>();
@@ -69,7 +69,7 @@ spec:
               jobmap.put(dirs[i], subfolderlist)
             }
 
-            def envfolder = new File(envDir)
+            def envfolder = new File(envdir)
             def envfolderlist = []
               envfolder.eachFile (FileType.FILES) {
                  if (!it.name.contains("secrets")) {
