@@ -79,8 +79,8 @@ spec:
                   subfolderlist = readFile(tmp_file).split( "\\r?\\n" );
                   sh "rm -f ${tmp_file}"
 
-                  for (int i = 0; i < subfolderlist.size(); i++) {
-                   subFiles.add(substring(subfolderlist[i].lastIndexOf("-")+1,subfolderlist[i].indexOf(".y")))
+                  for (int j = 0; j < subfolderlist.size(); j++) {
+                   subFiles.add(substring(subfolderlist[j].lastIndexOf("-")+1,subfolderlist[j].indexOf(".y")))
                 }
              
               jobmap.put(dirs[i], subFiles)
