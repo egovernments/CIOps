@@ -57,7 +57,6 @@ spec:
                  git url: url, credentialsId: 'git_read'
 
                 def fileList = "ls ${folderdir}".execute()
-                def dirs= []
                 fileList.text.eachLine {dirs.add(it)}
                  
              sh """
