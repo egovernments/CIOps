@@ -59,20 +59,22 @@ spec:
                    dirs << line
                  };
                  
-             dirs.each{ println it }
+             sh """
+          echo \"Folders:  ${dirs}\"
+           """
 
             for (int i = 0; i < dirs.size(); i++) {
               def subfolderlist = []
               def subfolder = readFile(folderdir+"/"+dirs[i]).split("\n").each { subfile ->
-                  subfolderlist << subfile.name.substring(subfile.name.lastIndexOf("-")+1,subfile.name.indexOf(".y"))
+                  subfolderlist << subfile.substring(subfile.lastIndexOf("-")+1,subfile.indexOf(".y"))
                 }
               jobmap.put(dirs[i], subfolderlist)
             }
 
             def envfolderlist = []
             def envfolder = readFile(envdir).split("\n").each {
-                 if (!it.name.contains("secrets")) {
-                      envfolderlist << it.name.substring(0,it.name.indexOf(".yaml"))      
+                 if (!it.contains("secrets")) {
+                      envfolderlist << it.substring(0,it.indexOf(".yaml"))      
                         }
                 }
         }
