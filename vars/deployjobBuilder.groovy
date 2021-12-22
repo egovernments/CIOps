@@ -48,6 +48,7 @@ spec:
         String folderdir = './deploy-as-code/helm/release_charts';
         String envdir = './deploy-as-code/helm/environments';
         def dirs = [];
+        def envFiles = []
         def envs = [];
         def tmp_file = ".files_list"
         Map<String,List<String>> jobmap = new HashMap<>();
@@ -70,7 +71,7 @@ spec:
                   dirs = readFile(tmp_file).split( "\\r?\\n" );
                   sh "rm -f ${tmp_file}"
 
-             dirs.each{ println it }
+                dirs.each{ println it }
 
             for (int i = 0; i < dirs.size(); i++) {
                    def subfolderlist = []
@@ -82,12 +83,11 @@ spec:
                   for (int j = 0; j < subfolderlist.size(); j++) {
                    subFiles.add(subfolderlist[j].substring(subfolderlist[j].lastIndexOf("-")+1,subfolderlist[j].indexOf(".y")))
                 }
-             
+              subFiles.each{ println it }
               jobmap.put(dirs[i], subFiles)
             }
 
             def envfolderlist = []
-            def envFiles = []
             sh "ls ${envdir} > ${tmp_file}"
             envfolderlist = readFile(tmp_file).split( "\\r?\\n" );
             sh "rm -f ${tmp_file}"
@@ -96,6 +96,7 @@ spec:
                    envFiles.add(envfolderlist[i].substring(0,envfolderlist[i].indexOf(".yaml")))
                 }
             }
+            envFiles.each{ println it }
               
         }
         
