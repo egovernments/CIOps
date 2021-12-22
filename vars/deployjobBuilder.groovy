@@ -54,7 +54,7 @@ spec:
        
             String dirName = Utils.getDirName(url);
             dir(dirName) {
-                 git url: gitUrls[i], credentialsId: 'git_read'
+                 git url: url, credentialsId: 'git_read'
                  def folder = new File(folderdir)
                  folder.eachFile FileType.DIRECTORIES, {
                     dirs << it.name
