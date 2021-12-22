@@ -63,7 +63,15 @@ spec:
                  //folder.eachFile FileType.DIRECTORIES, {
                    // dirs << it.name
                  // }
-                 dirs = Utils.listFiles(folderdir)
+                // dirs = Utils.listFiles(folderdir)
+                 def tmp_file = ".files_list"
+                  sh """
+                  ls ${folderdir} > ${tmp_file}
+                  """
+                  dirs = readFile(tmp_file).split( "\\r?\\n" );
+                  sh """
+                  rm -f ${tmp_file}
+                  """
              dirs.each{ println it }
 
             for (int i = 0; i < dirs.size(); i++) {
