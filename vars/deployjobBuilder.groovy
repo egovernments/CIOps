@@ -56,6 +56,9 @@ spec:
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
                  def folder = readFile(folderdir).split("\n").each { line ->
+                  sh """
+                  echo \"Folder:  ${line}\"
+                  """
                    dirs << line
                  };
                  
