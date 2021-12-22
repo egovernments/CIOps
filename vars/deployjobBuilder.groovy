@@ -135,7 +135,7 @@ spec:
                         filterable()
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script("${jobmap.get("${Project}")}")
+                            script(''' return jobmap.get(Project) ''')
                             fallbackScript('"fallback choice"')
                         }
                     }
