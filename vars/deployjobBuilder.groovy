@@ -108,7 +108,7 @@ spec:
               """); 
 
             jobDslScript.append("""
-            pipelineJob("deployer") {
+            pipelineJob("deployer/deploy") {
                 description()
                 keepDependencies(false)
                 parameters {
