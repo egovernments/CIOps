@@ -45,8 +45,8 @@ spec:
         node(POD_LABEL) {
         
         String url = "git@github.com:egovernments/DIGIT-DevOps.git";
-        String folderdir = "./deploy-as-code/helm/release_charts/*";
-        String envdir = "./deploy-as-code/helm/environments";
+        String folderdir = './deploy-as-code';
+        String envdir = './deploy-as-code/helm/environments';
         def dirs = [];
         def envs = [];
         Map<String,List<String>> jobmap = new HashMap<>();
@@ -55,26 +55,30 @@ spec:
             String dirName = Utils.getDirName(url);
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
-                dirs = findFiles(glob: folderdir)
-              // dirs = Utils.listFiles(folderdir)
-                 
-             sh """
-          echo \"Folders:  ${dirs}\"
-           echo \"Folder:  ${dirs[0].name}\"
-           """
+                 def folder = new File("${env.WORKSPACE}/${folderdir}")
+                 sh """
+                  pwd
+                  ls -ltr
+                """
+                 folder.eachFile FileType.DIRECTORIES, {
+                    dirs << it.name
+                  }
+             dirs.each{ println it }
 
             for (int i = 0; i < dirs.size(); i++) {
+              def subfolder = new File(folderdir+"/"+dirs[i])
               def subfolderlist = []
-              def subfolder = readFile(folderdir+"/"+dirs[i]).split("\n").each { subfile ->
-                  subfolderlist << subfile.substring(subfile.lastIndexOf("-")+1,subfile.indexOf(".y"))
+              subfolder.eachFile (FileType.FILES) { subfile ->
+                  subfolderlist << subfile.name.substring(subfile.name.lastIndexOf("-")+1,subfile.name.indexOf(".y"))
                 }
               jobmap.put(dirs[i], subfolderlist)
             }
 
+            def envfolder = new File(envdir)
             def envfolderlist = []
-            def envfolder = readFile(envdir).split("\n").each {
-                 if (!it.contains("secrets")) {
-                      envfolderlist << it.substring(0,it.indexOf(".yaml"))      
+              envfolder.eachFile (FileType.FILES) {
+                 if (!it.name.contains("secrets")) {
+                      envfolderlist << it.name.substring(0,it.name.indexOf(".yaml"))      
                         }
                 }
         }
