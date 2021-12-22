@@ -2,7 +2,7 @@ import org.egov.jenkins.ConfigParser
 import org.egov.jenkins.Utils
 import org.egov.jenkins.models.JobConfig
 import org.egov.jenkins.models.BuildConfig
-import groovy.io.FileType
+import groovy.io.*
 
 def call(Map params) {
 
@@ -45,7 +45,7 @@ spec:
         node(POD_LABEL) {
         
         String url = "git@github.com:egovernments/DIGIT-DevOps.git";
-        String folderdir = './deploy-as-code';
+        String folderdir = './deploy-as-code/helm/release_charts';
         String envdir = './deploy-as-code/helm/environments';
         def dirs = [];
         def envs = [];
@@ -55,7 +55,7 @@ spec:
             String dirName = Utils.getDirName(url);
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
-                 def folder = new File(folderdir);
+                 def folder = readFile(folderdir);
                  sh """
                   pwd
                   ls -ltr
