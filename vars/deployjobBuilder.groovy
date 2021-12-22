@@ -49,6 +49,7 @@ spec:
         String envdir = './deploy-as-code/helm/environments';
         def dirs = [];
         def envs = [];
+        def tmp_file = ".files_list"
         Map<String,List<String>> jobmap = new HashMap<>();
         StringBuilder jobDslScript = new StringBuilder();
        
@@ -64,32 +65,38 @@ spec:
                    // dirs << it.name
                  // }
                 // dirs = Utils.listFiles(folderdir)
-                 def tmp_file = ".files_list"
-                  sh """
-                  ls ${folderdir} > ${tmp_file}
-                  """
+                 
+                  sh "ls ${folderdir} > ${tmp_file}"
                   dirs = readFile(tmp_file).split( "\\r?\\n" );
-                  sh """
-                  rm -f ${tmp_file}
-                  """
+                  sh "rm -f ${tmp_file}"
+
              dirs.each{ println it }
 
             for (int i = 0; i < dirs.size(); i++) {
-              def subfolder = new File("${env.WORKSPACE}/${folderdir}/${dirs[i]}")
-              def subfolderlist = []
-              subfolder.eachFile (FileType.FILES) { subfile ->
-                  subfolderlist << subfile.name.substring(subfile.name.lastIndexOf("-")+1,subfile.name.indexOf(".y"))
+                   def subfolderlist = []
+                   def subFiles = []
+                  sh "ls ${folderdir}/${dirs[i]} > ${tmp_file}"
+                  subfolderlist = readFile(tmp_file).split( "\\r?\\n" );
+                  sh "rm -f ${tmp_file}"
+
+                  for (int i = 0; i < subfolderlist.size(); i++) {
+                   subFiles.add(substring(subfolderlist[i].lastIndexOf("-")+1,subfolderlist[i].indexOf(".y")))
                 }
-              jobmap.put(dirs[i], subfolderlist)
+             
+              jobmap.put(dirs[i], subFiles)
             }
 
-            def envfolder = new File("${env.WORKSPACE}/${envdir}")
             def envfolderlist = []
-              envfolder.eachFile (FileType.FILES) {
-                 if (!it.name.contains("secrets")) {
-                      envfolderlist << it.name.substring(0,it.name.indexOf(".yaml"))      
-                        }
+            def envFiles = []
+            sh "ls ${envdir} > ${tmp_file}"
+            envfolderlist = readFile(tmp_file).split( "\\r?\\n" );
+            sh "rm -f ${tmp_file}"
+            for (int i = 0; i < envfolderlist.size(); i++) {
+              if (!envfolderlist[i].contains("secrets")) {
+                   envFiles.add(substring(0,envfolderlist[i].indexOf(".yaml")))
                 }
+            }
+              
         }
         
         Set<String> repoSet = new HashSet<>();
@@ -118,7 +125,7 @@ spec:
                         filterable()
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script("${envfolderlist}")
+                            script("${envFiles}")
                             fallbackScript('"fallback choice"')
                         }
                     }
