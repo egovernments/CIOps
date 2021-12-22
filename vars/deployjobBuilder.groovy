@@ -45,8 +45,8 @@ spec:
         node(POD_LABEL) {
         
         String url = "git@github.com:egovernments/DIGIT-DevOps.git";
-        String folderdir = 'DIGIT-DevOps/deploy-as-code/helm/release_charts';
-        String envdir = 'DIGIT-DevOps/deploy-as-code/helm/environments';
+        String folderdir = './deploy-as-code/helm/release_charts';
+        String envdir = './deploy-as-code/helm/environments';
         def dirs = [];
         def envs = [];
         Map<String,List<String>> jobmap = new HashMap<>();
@@ -55,12 +55,16 @@ spec:
             String dirName = Utils.getDirName(url);
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
+                 sh """
+                  pwd
+                  ls -ltr
+                """
                  def folder = new File('.')
                  folder.eachFile FileType.DIRECTORIES, {
                     dirs << it.name
                   }
              dirs.each{ println it }
-             
+
             for (int i = 0; i < dirs.size(); i++) {
               def subfolder = new File(folderdir+"/"+dirs[i])
               def subfolderlist = []
