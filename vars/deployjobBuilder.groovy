@@ -55,28 +55,22 @@ spec:
             String dirName = Utils.getDirName(url);
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
-                 def folder = readFile(folderdir);
-                 sh """
-                  pwd
-                  ls -ltr
-                """
-                 folder.eachFile FileType.DIRECTORIES, {
-                    dirs << it.name
-                  }
+                 def folder = readFile(folderdir).split("\n").each { line ->
+                   dirs << line
+                 };
+                 
              dirs.each{ println it }
 
             for (int i = 0; i < dirs.size(); i++) {
-              def subfolder = new File(folderdir+"/"+dirs[i])
               def subfolderlist = []
-              subfolder.eachFile (FileType.FILES) { subfile ->
+              def subfolder = readFile(folderdir+"/"+dirs[i]).split("\n").each { subfile ->
                   subfolderlist << subfile.name.substring(subfile.name.lastIndexOf("-")+1,subfile.name.indexOf(".y"))
                 }
               jobmap.put(dirs[i], subfolderlist)
             }
 
-            def envfolder = new File(envdir)
             def envfolderlist = []
-              envfolder.eachFile (FileType.FILES) {
+            def envfolder = readFile(envdir).split("\n").each {
                  if (!it.name.contains("secrets")) {
                       envfolderlist << it.name.substring(0,it.name.indexOf(".yaml"))      
                         }
