@@ -46,4 +46,12 @@ class Utils {
 
     }
 
+    @NonCPS
+    def getFiles(String dir) {
+        def files = [];
+        def fileList = "ls ${folderdir}".execute()
+        fileList.text.eachLine {files.add(it)}
+        return files
+}
+
 }

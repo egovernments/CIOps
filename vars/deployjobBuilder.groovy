@@ -56,8 +56,7 @@ spec:
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
 
-                def fileList = "ls ${folderdir}".execute()
-                fileList.text.eachLine {dirs.add(it)}
+               dirs = Utils.getFiles(folderdir)
                  
              sh """
           echo \"Folders:  ${dirs}\"
