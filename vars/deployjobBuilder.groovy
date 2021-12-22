@@ -55,11 +55,12 @@ spec:
             String dirName = Utils.getDirName(url);
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
-                 def folder = new File(folderdir)
+                 def folder = new File('.')
                  folder.eachFile FileType.DIRECTORIES, {
                     dirs << it.name
                   }
-            
+             dirs.each{ println it }
+             
             for (int i = 0; i < dirs.size(); i++) {
               def subfolder = new File(folderdir+"/"+dirs[i])
               def subfolderlist = []
