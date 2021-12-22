@@ -80,7 +80,7 @@ spec:
                   sh "rm -f ${tmp_file}"
 
                   for (int j = 0; j < subfolderlist.size(); j++) {
-                   subFiles.add(substring(subfolderlist[j].lastIndexOf("-")+1,subfolderlist[j].indexOf(".y")))
+                   subFiles.add(subfolderlist[j].substring(subfolderlist[j].lastIndexOf("-")+1,subfolderlist[j].indexOf(".y")))
                 }
              
               jobmap.put(dirs[i], subFiles)
@@ -93,7 +93,7 @@ spec:
             sh "rm -f ${tmp_file}"
             for (int i = 0; i < envfolderlist.size(); i++) {
               if (!envfolderlist[i].contains("secrets")) {
-                   envFiles.add(substring(0,envfolderlist[i].indexOf(".yaml")))
+                   envFiles.add(envfolderlist[i].substring(0,envfolderlist[i].indexOf(".yaml")))
                 }
             }
               
@@ -134,7 +134,7 @@ spec:
                         filterable()
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script("${jobmap.get(Project)}")
+                            script("${jobmap.get("${Project}")}")
                             fallbackScript('"fallback choice"')
                         }
                     }
