@@ -45,8 +45,8 @@ spec:
         node(POD_LABEL) {
         
         String url = "git@github.com:egovernments/DIGIT-DevOps.git";
-        String folderdir = './deploy-as-code/helm/release_charts';
-        String envdir = './deploy-as-code/helm/environments';
+        String folderdir = 'deploy-as-code/helm/release_charts';
+        String envdir = 'deploy-as-code/helm/environments';
         def dirs = [];
         def envs = [];
         Map<String,List<String>> jobmap = new HashMap<>();
