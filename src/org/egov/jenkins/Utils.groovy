@@ -48,10 +48,11 @@ class Utils {
 
     @NonCPS
     static def listFiles(String dir) {
-        def files = [];
-        def fileList = "ls ${dir}".execute()
-        fileList.text.eachLine {files.add(it)}
-        return files
+        def tmp_file = ".files_list"
+        sh "ls ${dir} > ${tmp_file}"
+        def filenames = readFile(tmp_file).split( "\\r?\\n" );
+        sh "rm -f ${tmp_file}"
+        return filenames
 }
 
 }

@@ -45,7 +45,7 @@ spec:
         node(POD_LABEL) {
         
         String url = "git@github.com:egovernments/DIGIT-DevOps.git";
-        String folderdir = 'DIGIT-DevOps/deploy-as-code';
+        String folderdir = 'DIGIT-DevOps/deploy-as-code/helm/release_charts';
         String envdir = 'DIGIT-DevOps/deploy-as-code/helm/environments';
         def dirs = [];
         def envs = [];
@@ -55,18 +55,19 @@ spec:
             String dirName = Utils.getDirName(url);
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
-                 def folder = new File("${env.WORKSPACE}/${folderdir}")
+                 //def folder = new File("${env.WORKSPACE}/${folderdir}")
                  sh """
                   pwd
                   ls -ltr
                 """
-                 folder.eachFile FileType.DIRECTORIES, {
-                    dirs << it.name
-                  }
+                 //folder.eachFile FileType.DIRECTORIES, {
+                   // dirs << it.name
+                 // }
+                 dirs = Utils.listFiles(folderdir)
              dirs.each{ println it }
 
             for (int i = 0; i < dirs.size(); i++) {
-              def subfolder = new File(folderdir+"/"+dirs[i])
+              def subfolder = new File("${env.WORKSPACE}/${folderdir}/${dirs[i]}")
               def subfolderlist = []
               subfolder.eachFile (FileType.FILES) { subfile ->
                   subfolderlist << subfile.name.substring(subfile.name.lastIndexOf("-")+1,subfile.name.indexOf(".y"))
@@ -74,7 +75,7 @@ spec:
               jobmap.put(dirs[i], subfolderlist)
             }
 
-            def envfolder = new File(envdir)
+            def envfolder = new File("${env.WORKSPACE}/${envdir}")
             def envfolderlist = []
               envfolder.eachFile (FileType.FILES) {
                  if (!it.name.contains("secrets")) {
