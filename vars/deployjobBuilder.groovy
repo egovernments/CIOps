@@ -45,7 +45,7 @@ spec:
         node(POD_LABEL) {
         
         String url = "git@github.com:egovernments/DIGIT-DevOps.git";
-        String folderdir = './deploy-as-code/helm/release_charts';
+        String folderdir = './deploy-as-code';
         String envdir = './deploy-as-code/helm/environments';
         def dirs = [];
         def envs = [];
@@ -55,11 +55,11 @@ spec:
             String dirName = Utils.getDirName(url);
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
+                 def folder = new File('folderdir')
                  sh """
                   pwd
                   ls -ltr
                 """
-                 def folder = new File('.')
                  folder.eachFile FileType.DIRECTORIES, {
                     dirs << it.name
                   }
