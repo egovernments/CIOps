@@ -49,9 +49,13 @@ class Utils {
     @NonCPS
     static def listFiles(String dir) {
         def tmp_file = ".files_list"
-        sh "ls ${dir} > ${tmp_file}"
+        sh """
+        ls ${dir} > ${tmp_file}
+        """
         def filenames = readFile(tmp_file).split( "\\r?\\n" );
-        sh "rm -f ${tmp_file}"
+        sh """
+        rm -f ${tmp_file}
+        """
         return filenames
 }
 
