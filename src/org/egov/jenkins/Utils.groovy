@@ -49,7 +49,7 @@ class Utils {
     @NonCPS
     static def listFiles(String dir) {
         def files = [];
-        def fileList = "ls ${folderdir}".execute()
+        def fileList = "ls ${dir}".execute()
         fileList.text.eachLine {files.add(it)}
         return files
 }
