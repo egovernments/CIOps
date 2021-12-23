@@ -54,7 +54,7 @@ spec:
         Map<String,List<String>> jobmap = new HashMap<>();
         def newdirs = "[\"digit\",\"mgramseva\",\"ifix\"]";
         def newenvFiles = "[\"dev\",\"stg\",\"uat\"]";
-        Map<String,String> newjobmap = new HashMap<>();
+        @Field Map<String,String> newjobmap = new HashMap<>();
         newjobmap.put("digit","[\"1.1\",\"1.2\",\"1.3\"]")
         newjobmap.put("mgramseva","[\"2.1\",\"2.2\",\"2.3\"]")
         newjobmap.put("ifix","[\"3.1\",\"3.2\",\"3.3\"]")
@@ -141,7 +141,10 @@ spec:
                         filterable()
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(''' return newjobmap.get(Project) ''')
+                            script(''' 
+                            def testmap = ${newjobmap.inspect()}
+                            return testmap.get(Project)
+                            ''')
                             fallbackScript('"fallback choice"')
                         }
                     }
