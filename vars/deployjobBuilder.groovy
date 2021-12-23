@@ -82,7 +82,7 @@ spec:
                 dirs.each{ println it }
 
                 for (int i = 0; i < dirs.size(); i++) {
-                    directories = "\"" + directories+ "\"";
+                    directories = "\"" + dirs[i] + "\"";
                 }
                 directories = directories + "]";
 
