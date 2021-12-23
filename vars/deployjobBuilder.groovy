@@ -36,11 +36,11 @@ spec:
         value: dev
     resources:
       requests:
-        memory: "768Mi"
-        cpu: "250m"
+        memory: "256Mi"
+        cpu: "200m"
       limits:
-        memory: "1024Mi"
-        cpu: "500m"                
+        memory: "256Mi"
+        cpu: "200m"                
 """
     ) {
         node(POD_LABEL) {
