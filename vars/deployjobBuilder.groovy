@@ -3,6 +3,7 @@ import org.egov.jenkins.Utils
 import org.egov.jenkins.models.JobConfig
 import org.egov.jenkins.models.BuildConfig
 import groovy.io.*
+import groovy.transform.Field
 
 def call(Map params) {
 
