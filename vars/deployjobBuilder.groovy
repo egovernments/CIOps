@@ -143,7 +143,7 @@ spec:
                         choiceType('SINGLE_SELECT')
                         groovyScript {
                             script(''' 
-                            def testmap = ${newjobmap.inspect()}
+                            def testmap = ${newjobmap}
                             return testmap.get(Project)
                             ''')
                             fallbackScript('"fallback choice"')
