@@ -124,7 +124,7 @@ spec:
         for (int i = 0; i < dirs.size(); i++) {
             String versions = jobmap.get(dirs[i])
             jobDslScript.append("""
-            pipelineJob("deploy/${dirs.get(i)}") {
+            pipelineJob("deploy/${dirs[i]}") {
                 description()
                 keepDependencies(false)
                 parameters {
