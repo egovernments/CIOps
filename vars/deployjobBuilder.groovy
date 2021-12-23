@@ -50,7 +50,6 @@ spec:
         String envdir = './deploy-as-code/helm/environments';
         def dirs = [];
         def envFiles = []
-        def envs = [];
         def tmp_file = ".files_list"
         Map<String,String> jobmap = new HashMap<>();
         StringBuilder jobDslScript = new StringBuilder();
