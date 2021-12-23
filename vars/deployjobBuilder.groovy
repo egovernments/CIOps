@@ -52,12 +52,12 @@ spec:
         def envs = [];
         def tmp_file = ".files_list"
         Map<String,List<String>> jobmap = new HashMap<>();
-        def newdirs = ["digit","mgramseva","ifix"];
-        def newenvFiles = ["dev","stg","uat"]
+        def newdirs = "[\"digit\",\"mgramseva\",\"ifix\"]";
+        def newenvFiles = "[\"dev\",\"stg\",\"uat\"]";
         Map<String,String> newjobmap = new HashMap<>();
-        newjobmap.put("digit","[\"1.1\"],[\"1.2\"],[\"1.3\"]")
-        newjobmap.put("mgramseva","[\"2.1\"],[\"2.2\"],[\"2.3\"]")
-        newjobmap.put("ifix","[\"3.1\"],[\"3.2\"],[\"3.3\"]")
+        newjobmap.put("digit","[\"1.1\",\"1.2\",\"1.3\"]")
+        newjobmap.put("mgramseva","[\"2.1\",\"2.2\",\"2.3\"]")
+        newjobmap.put("ifix","[\"3.1\",\"3.2\",\"3.3\"]")
         StringBuilder jobDslScript = new StringBuilder();
        
             String dirName = Utils.getDirName(url);
