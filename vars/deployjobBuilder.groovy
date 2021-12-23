@@ -169,7 +169,7 @@ spec:
                             ''')
                             fallbackScript('"fallback choice"')
                         }
-                        referencedParameters('Project')	
+                        referencedParameter('Project')	
                     }
                     booleanParam("Cluster_Configs", false, "Whenever you made changes to the deployment conifg ensure the cluster_config check is checked to pick the latest configs from the deployment")
                     booleanParam("Print_Manifest", true, "Whenever you want to deployment manifest ensure the uncheck checked box")
