@@ -123,7 +123,7 @@ spec:
                         filterable()
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script("${newdirs}")
+                            script(''' ${newdirs} ''')
                             fallbackScript('"fallback choice"')
                         }
                     }
@@ -132,7 +132,7 @@ spec:
                         filterable()
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script("${newenvFiles}")
+                            script(''' ${newenvFiles} ''')
                             fallbackScript('"fallback choice"')
                         }
                     }
