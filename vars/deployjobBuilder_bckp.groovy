@@ -52,18 +52,35 @@ spec:
         def envFiles = []
         def envs = [];
         def tmp_file = ".files_list"
-        Map<String,String> jobmap = new HashMap<>();
+        Map<String,List<String>> jobmap = new HashMap<>();
+        def newdirs = "[\"digit\",\"mgramseva\",\"ifix\"]";
+        def newenvFiles = "[\"dev\",\"stg\",\"uat\"]";
+        @Field Map<String,String> newjobmap = new HashMap<>();
+        newjobmap.put("digit","[\"1.1\",\"1.2\",\"1.3\"]")
+        newjobmap.put("mgramseva","[\"2.1\",\"2.2\",\"2.3\"]")
+        newjobmap.put("ifix","[\"3.1\",\"3.2\",\"3.3\"]")
         StringBuilder jobDslScript = new StringBuilder();
         String directories = "[";
         String subDirectories = "[";
-        String envs = "["
        
             String dirName = Utils.getDirName(url);
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
+                 //def folder = new File("${env.WORKSPACE}/${folderdir}")
+                 sh """
+                  pwd
+                  ls -ltr
+                """
+                 //folder.eachFile FileType.DIRECTORIES, {
+                   // dirs << it.name
+                 // }
+                // dirs = Utils.listFiles(folderdir)
+                 
                   sh "ls ${folderdir} > ${tmp_file}"
                   dirs = readFile(tmp_file).split( "\\r?\\n" );
                   sh "rm -f ${tmp_file}"
+
+                dirs.each{ println it }
 
                 for (int i = 0; i < dirs.size(); i++) {
                     directories = directories + "\"" + dirs[i] + "\"";
@@ -72,7 +89,9 @@ spec:
                     }
                 }
                 
-                directories = directories + "]";
+                directories = directories +","+ "\"" + "core" + "\"" + "]";
+
+                println directories
 
             for (int i = 0; i < dirs.size(); i++) {
                    def subfolderlist = []
@@ -92,7 +111,7 @@ spec:
                     }
                 }
                 subDirectories = subDirectories + "]";
-                jobmap.put(dirs[i], subDirectories)
+                jobmap.put(dirs[i], subFiles)
                 subDirectories = "[";
             }
 
@@ -105,14 +124,7 @@ spec:
                    envFiles.add(envfolderlist[i].substring(0,envfolderlist[i].indexOf(".yaml")))
                 }
             }
-            for (int i = 0; i < envFiles.size(); i++) {
-                    envs = envs + "\"" + envFiles[i] + "\"";
-                    if(i!=envFiles.size()-1){
-                          envs = envs + ",";
-                    }
-                }
-                
-                envs = envs + "]";
+            envFiles.each{ println it }
               
         }
         
@@ -122,19 +134,27 @@ spec:
           jobDslScript.append("""
               folder("deployer")
               """); 
-        for (int i = 0; i < dirs.size(); i++) {
-            String versions = jobmap.get(dirs[i])
+
             jobDslScript.append("""
-            pipelineJob("deployer/${dirs.get(i)}") {
+            pipelineJob("deployer/deploy") {
                 description()
                 keepDependencies(false)
                 parameters {
+                    activeChoiceParam('Project') {
+                        description('choose Project from multiple choices')
+                        filterable()
+                        choiceType('SINGLE_SELECT')
+                        groovyScript {
+                            script(''' ${directories} ''')
+                            fallbackScript('"fallback choice"')
+                        }
+                    }
                     activeChoiceParam('Environments') {
                         description('choose environment from multiple choices')
                         filterable()
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(''' ${envs} ''')
+                            script(''' ${newenvFiles} ''')
                             fallbackScript('"fallback choice"')
                         }
                     }
@@ -143,7 +163,10 @@ spec:
                         filterable()
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(''' ${versions} ''')
+                            script(''' 
+                            def testmap = ${jobmap.inspect()}
+                            return testmap.get(Project).join('\n')
+                            ''')
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Project')	
@@ -161,7 +184,6 @@ spec:
                 disabled(false)
               }            
 """);
-        }
         
         
 
