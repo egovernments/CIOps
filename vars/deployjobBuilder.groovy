@@ -111,7 +111,7 @@ spec:
                     }
                 }
                 subDirectories = subDirectories + "]";
-                jobmap.put(dirs[i], subDirectories)
+                jobmap.put(dirs[i], subFiles)
                 subDirectories = "[";
             }
 
@@ -165,7 +165,7 @@ spec:
                         groovyScript {
                             script(''' 
                             def testmap = ${jobmap.inspect()}
-                            testmap.get(Project)
+                            return testmap.get(Project).join('\n')
                             ''')
                             fallbackScript('"fallback choice"')
                         }
