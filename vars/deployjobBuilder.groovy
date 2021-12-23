@@ -88,7 +88,8 @@ spec:
                           directories = directories + ",";
                     }
                 }
-                directories = directories + "]";
+                
+                directories = directories +","+ "\"" + "core" + "\"" + "]";
 
                 println directories
 
@@ -110,7 +111,7 @@ spec:
                     }
                 }
                 subDirectories = subDirectories + "]";
-                jobmap.put(dirs[i], subFiles)
+                jobmap.put(dirs[i], subDirectories)
                 subDirectories = "[";
             }
 
@@ -164,19 +165,11 @@ spec:
                         groovyScript {
                             script(''' 
                             def testmap = ${jobmap.inspect()}
-                            def versionlist = testmap.get(Project)
-                            String version = "["
-                            for (int i = 0; i < versionlist.size(); i++) {
-                                version = version + "\"" + versionlist[i] + "\"";
-                                if(i!=versionlist.size()-1){
-                                  version = version + ",";
-                                }
-                            }
-                            version = version + "]";
-                            return version
+                            testmap.get(Project)
                             ''')
                             fallbackScript('"fallback choice"')
                         }
+                        referencedParameters('Project')	
                     }
                     booleanParam("Cluster_Configs", false, "Whenever you made changes to the deployment conifg ensure the cluster_config check is checked to pick the latest configs from the deployment")
                     booleanParam("Print_Manifest", true, "Whenever you want to deployment manifest ensure the uncheck checked box")
