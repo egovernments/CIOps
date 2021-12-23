@@ -60,6 +60,7 @@ spec:
         newjobmap.put("mgramseva","[\"2.1\",\"2.2\",\"2.3\"]")
         newjobmap.put("ifix","[\"3.1\",\"3.2\",\"3.3\"]")
         StringBuilder jobDslScript = new StringBuilder();
+        String directories = "[";
        
             String dirName = Utils.getDirName(url);
             dir(dirName) {
@@ -79,6 +80,13 @@ spec:
                   sh "rm -f ${tmp_file}"
 
                 dirs.each{ println it }
+
+                for (int i = 0; i < envfolderlist.size(); i++) {
+                    directories = "\"" + directories+ "\"";
+                }
+                directories = directories + "]";
+
+                println directories
 
             for (int i = 0; i < dirs.size(); i++) {
                    def subfolderlist = []
@@ -143,9 +151,9 @@ spec:
                         choiceType('SINGLE_SELECT')
                         groovyScript {
                             script(''' 
-                            def testmap = ${newjobmap}
+                            def testmap = ${newjobmap.inspect()}
                             return testmap.get(Project)
-                            ''')
+                            '''.stripIndent())
                             fallbackScript('"fallback choice"')
                         }
                     }
