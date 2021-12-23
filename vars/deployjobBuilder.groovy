@@ -120,12 +120,12 @@ spec:
         String repoList = "";
 
           jobDslScript.append("""
-              folder("deployer")
+              folder("deploy")
               """); 
         for (int i = 0; i < dirs.size(); i++) {
             String versions = jobmap.get(dirs[i])
             jobDslScript.append("""
-            pipelineJob("deployer/${dirs.get(i)}") {
+            pipelineJob("deploy/${dirs.get(i)}") {
                 description()
                 keepDependencies(false)
                 parameters {
