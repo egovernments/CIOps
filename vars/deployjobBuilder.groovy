@@ -137,7 +137,7 @@ spec:
                             fallbackScript('"fallback choice"')
                         }
                     }
-                    activeChoiceParam('Release-Chart-Version') {
+                    activeChoiceReactiveParam('Release-Chart-Version') {
                         description('choose release chart version from multiple choices')
                         filterable()
                         choiceType('SINGLE_SELECT')
