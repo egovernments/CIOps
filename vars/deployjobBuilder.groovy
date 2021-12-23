@@ -110,7 +110,8 @@ spec:
                     }
                 }
                 subDirectories = subDirectories + "]";
-              jobmap.put(dirs[i], subDirectories)
+                jobmap.put(dirs[i], subDirectories)
+                subDirectories = "[";
             }
 
             def envfolderlist = []
