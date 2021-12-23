@@ -52,7 +52,7 @@ spec:
         def envFiles = []
         def envs = [];
         def tmp_file = ".files_list"
-        Map<String,String> jobmap = new HashMap<>();
+        Map<String,List<String>> jobmap = new HashMap<>();
         def newdirs = "[\"digit\",\"mgramseva\",\"ifix\"]";
         def newenvFiles = "[\"dev\",\"stg\",\"uat\"]";
         @Field Map<String,String> newjobmap = new HashMap<>();
@@ -110,7 +110,7 @@ spec:
                     }
                 }
                 subDirectories = subDirectories + "]";
-                jobmap.put(dirs[i], subDirectories)
+                jobmap.put(dirs[i], subFiles)
                 subDirectories = "[";
             }
 
@@ -164,7 +164,16 @@ spec:
                         groovyScript {
                             script(''' 
                             def testmap = ${jobmap.inspect()}
-                            return testmap.get(Project)
+                            def versionlist = testmap.get(Project)
+                            String version = "["
+                            for (int i = 0; i < versionlist.size(); i++) {
+                                version = version + "\"" + versionlist[i] + "\"";
+                                if(i!=versionlist.size()-1){
+                                  version = version + ",";
+                                }
+                            }
+                            version = version + "]";
+                            return version
                             ''')
                             fallbackScript('"fallback choice"')
                         }
