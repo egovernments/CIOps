@@ -52,7 +52,7 @@ spec:
         def envFiles = []
         def envs = [];
         def tmp_file = ".files_list"
-        Map<String,List<String>> jobmap = new HashMap<>();
+        Map<String,String> jobmap = new HashMap<>();
         def newdirs = "[\"digit\",\"mgramseva\",\"ifix\"]";
         def newenvFiles = "[\"dev\",\"stg\",\"uat\"]";
         @Field Map<String,String> newjobmap = new HashMap<>();
@@ -61,6 +61,7 @@ spec:
         newjobmap.put("ifix","[\"3.1\",\"3.2\",\"3.3\"]")
         StringBuilder jobDslScript = new StringBuilder();
         String directories = "[";
+        String subDirectories = "[";
        
             String dirName = Utils.getDirName(url);
             dir(dirName) {
@@ -83,6 +84,9 @@ spec:
 
                 for (int i = 0; i < dirs.size(); i++) {
                     directories = directories + "\"" + dirs[i] + "\"";
+                    if(i!=dirs.size()-1){
+                          directories = directories + ",";
+                    }
                 }
                 directories = directories + "]";
 
@@ -99,7 +103,14 @@ spec:
                    subFiles.add(subfolderlist[j].substring(subfolderlist[j].lastIndexOf("-")+1,subfolderlist[j].indexOf(".y")))
                 }
               subFiles.each{ println it }
-              jobmap.put(dirs[i], subFiles)
+              for (int k = 0; k < subFiles.size(); k++) {
+                    subDirectories = subDirectories + "\"" + subFiles[i] + "\"";
+                    if(i!=subFiles.size()-1){
+                          subDirectories = subDirectories + ",";
+                    }
+                }
+                subDirectories = subDirectories + "]";
+              jobmap.put(dirs[i], subDirectories)
             }
 
             def envfolderlist = []
@@ -132,7 +143,7 @@ spec:
                         filterable()
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(''' ${newdirs} ''')
+                            script(''' ${directories} ''')
                             fallbackScript('"fallback choice"')
                         }
                     }
@@ -151,9 +162,9 @@ spec:
                         choiceType('SINGLE_SELECT')
                         groovyScript {
                             script(''' 
-                            def testmap = ${newjobmap.inspect()}
+                            def testmap = ${jobmap.inspect()}
                             return testmap.get(Project)
-                            '''.stripIndent())
+                            ''')
                             fallbackScript('"fallback choice"')
                         }
                     }
