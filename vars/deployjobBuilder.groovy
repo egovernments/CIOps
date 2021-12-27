@@ -126,11 +126,11 @@ spec:
                 }
             }
             for (int i = 0; i < envFiles.size(); i++) {
-                if (envFiles[i]==ci){
-                    envs = envs + "\"" + envFiles[i+1] + "\"";
-                } else { 
+               // if (envFiles[i]==ci){
+                 //   envs = envs + "\"" + envFiles[i+1] + "\"";
+                //} else { 
                     envs = envs + "\"" + envFiles[i] + "\"";
-                }    
+                //}    
                     if(i!=envFiles.size()-1){
                           envs = envs + ",";
                     }
