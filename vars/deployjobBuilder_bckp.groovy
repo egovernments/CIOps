@@ -36,41 +36,42 @@ spec:
         value: dev
     resources:
       requests:
-        memory: "768Mi"
-        cpu: "250m"
+        memory: "256Mi"
+        cpu: "200m"
       limits:
-        memory: "1024Mi"
-        cpu: "500m"                
+        memory: "256Mi"
+        cpu: "200m"                
 """
     ) {
         node(POD_LABEL) {
         
-        String url = "git@github.com:egovernments/DIGIT-DevOps.git";
+        String url = params.url;
         String folderdir = './deploy-as-code/helm/release_charts';
         String envdir = './deploy-as-code/helm/environments';
         def dirs = [];
         def envFiles = []
-        def envs = [];
+        //def envs = [];
         def tmp_file = ".files_list"
         Map<String,List<String>> jobmap = new HashMap<>();
-        def newdirs = "[\"digit\",\"mgramseva\",\"ifix\"]";
-        def newenvFiles = "[\"dev\",\"stg\",\"uat\"]";
-        @Field Map<String,String> newjobmap = new HashMap<>();
-        newjobmap.put("digit","[\"1.1\",\"1.2\",\"1.3\"]")
-        newjobmap.put("mgramseva","[\"2.1\",\"2.2\",\"2.3\"]")
-        newjobmap.put("ifix","[\"3.1\",\"3.2\",\"3.3\"]")
+        //def newdirs = "[\"digit\",\"mgramseva\",\"ifix\"]";
+        //def newenvFiles = "[\"dev\",\"stg\",\"uat\"]";
+        //@Field Map<String,String> newjobmap = new HashMap<>();
+        //newjobmap.put("digit","[\"1.1\",\"1.2\",\"1.3\"]")
+        //newjobmap.put("mgramseva","[\"2.1\",\"2.2\",\"2.3\"]")
+        //newjobmap.put("ifix","[\"3.1\",\"3.2\",\"3.3\"]")
         StringBuilder jobDslScript = new StringBuilder();
         String directories = "[";
         String subDirectories = "[";
+        String envs = "["    
        
             String dirName = Utils.getDirName(url);
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
                  //def folder = new File("${env.WORKSPACE}/${folderdir}")
-                 sh """
-                  pwd
-                  ls -ltr
-                """
+                 //sh """
+                  //pwd
+                  //ls -ltr
+                //"""
                  //folder.eachFile FileType.DIRECTORIES, {
                    // dirs << it.name
                  // }
@@ -88,10 +89,10 @@ spec:
                           directories = directories + ",";
                     }
                 }
-                
-                directories = directories +","+ "\"" + "core" + "\"" + "]";
+                directories = directories + "]";
+                //directories = directories +","+ "\"" + "core" + "\"" + "]";
 
-                println directories
+                //println directories
 
             for (int i = 0; i < dirs.size(); i++) {
                    def subfolderlist = []
@@ -124,7 +125,13 @@ spec:
                    envFiles.add(envfolderlist[i].substring(0,envfolderlist[i].indexOf(".yaml")))
                 }
             }
-            envFiles.each{ println it }
+            for (int i = 0; i < envFiles.size(); i++) {
+                    envs = envs + "\"" + envFiles[i] + "\"";
+                    if(i!=envFiles.size()-1){
+                          envs = envs + ",";
+                    }
+                }   
+            envs = envs + "]";
               
         }
         
@@ -154,18 +161,18 @@ spec:
                         filterable()
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(''' ${newenvFiles} ''')
+                            script(''' ${envs} ''')
                             fallbackScript('"fallback choice"')
                         }
                     }
-                    activeChoiceReactiveParam('Release-Chart-Version') {
+                    activeChoiceReactiveParam('Release-Version') {
                         description('choose release chart version from multiple choices')
                         filterable()
                         choiceType('SINGLE_SELECT')
                         groovyScript {
                             script(''' 
                             def testmap = ${jobmap.inspect()}
-                            return testmap.get(Project).join('\n')
+                            return testmap.get(Project)
                             ''')
                             fallbackScript('"fallback choice"')
                         }
