@@ -172,8 +172,7 @@ spec:
                         groovyScript {
                             script(''' 
                             def testmap = ${jobmap.inspect()}
-                            return testmap.get(Project)
-                            ''')
+                                return testmap.get(Project)''')
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Project')	
@@ -183,8 +182,8 @@ spec:
                 }  
                 definition {
                   cps {
-                      script(''' library 'ci-libs'
-                        infradeployer(repo:'git@github.com:egovernments/DIGIT-DevOps.git', branch: 'master', helmDir: 'deploy-as-code/helm') ''')
+                      script('''library 'ci-libs'
+                                 infradeployer(repo:'git@github.com:egovernments/DIGIT-DevOps.git', branch: 'master', helmDir: 'deploy-as-code/helm')''')
                       sandbox() 
                     }
                 }
