@@ -149,7 +149,7 @@ spec:
                 parameters {
                     activeChoiceParam('Project') {
                         description('choose Project from multiple choices')
-                        filterable()
+                        filterable(false)
                         choiceType('SINGLE_SELECT')
                         groovyScript {
                             script(''' ${directories} ''')
@@ -158,7 +158,7 @@ spec:
                     }
                     activeChoiceParam('Environments') {
                         description('choose environment from multiple choices')
-                        filterable()
+                        filterable(false)
                         choiceType('SINGLE_SELECT')
                         groovyScript {
                             script(''' ${envs} ''')
@@ -167,7 +167,7 @@ spec:
                     }
                     activeChoiceReactiveParam('Release-Version') {
                         description('choose release chart version from multiple choices')
-                        filterable()
+                        filterable(false)
                         choiceType('SINGLE_SELECT')
                         groovyScript {
                             script(''' 
