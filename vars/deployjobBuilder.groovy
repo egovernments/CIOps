@@ -136,6 +136,8 @@ spec:
                     }
                 }   
             envs = envs + "]";
+            envs.remove("ci");
+            println envs    
               
         }
         
