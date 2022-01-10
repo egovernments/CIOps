@@ -145,11 +145,11 @@ spec:
         String repoList = "";
 
           jobDslScript.append("""
-              folder("deployer")
+              folder("self-provision")
               """); 
 
             jobDslScript.append("""
-            pipelineJob("deployer/deploy") {
+            pipelineJob("self-provision/deploy") {
                 description()
                 keepDependencies(false)
                 parameters {
