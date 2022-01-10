@@ -172,7 +172,7 @@ spec:
                         filterable(false)
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(''' ${envs} ''')
+                            script(''' ${environments} ''')
                             fallbackScript('"fallback choice"')
                         }
                     }
