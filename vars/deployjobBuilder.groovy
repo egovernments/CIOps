@@ -140,8 +140,9 @@ spec:
         }
             //println envs-("ci")
             println envs
-            envs.remove("ci");
-            println envs     
+            def environments = envs
+                environments.remove("ci");
+                println environments     
         
         Set<String> repoSet = new HashSet<>();
         String repoList = "";
