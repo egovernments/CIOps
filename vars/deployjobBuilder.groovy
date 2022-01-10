@@ -140,8 +140,8 @@ spec:
         }
             //println envs-("ci")
             //println envs
-        println envs-("ci") 
-        println envs
+        def environments = envs-("ci") 
+        println environments
                 //environments.remove("ci");
                 
                
