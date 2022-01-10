@@ -45,7 +45,7 @@ spec:
         node(POD_LABEL) {
             git url: pipelineParams.repo, branch: pipelineParams.branch, credentialsId: 'git_read'
                 stage('Deploy Images') {
-                        container(name: 'egov-deployer', shell: '/bin/sh') {
+                        container(name: 'egov-infra-deployer', shell: '/bin/sh') {
                             sh """
                                 /opt/egov/egov-deployer deploy --helm-dir `pwd`/${pipelineParams.helmDir} -c=${env.CLUSTER_CONFIGS}  -e ${env.ENVIRONMENTS} -p=${env.PRINT_MANIFEST} -s=${env.PROJECT} -v=${env.VERSION}
                             """
