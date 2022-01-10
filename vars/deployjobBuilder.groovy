@@ -46,7 +46,7 @@ spec:
         node(POD_LABEL) {
         
         String url = params.url;
-        String folderdir = './deploy-as-code/helm/release_charts';
+        String folderdir = './deploy-as-code/helm/product-release-charts';
         String envdir = './deploy-as-code/helm/environments';
         def dirs = [];
         def envFiles = []
