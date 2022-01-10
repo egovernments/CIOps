@@ -135,7 +135,8 @@ spec:
                           envs = envs + ",";
                     }
                 }   
-            envs = envs + "]";   
+            envs = envs + "]"; 
+                println envs-("ci,")
               
         }
        // envs.remove('ci');
