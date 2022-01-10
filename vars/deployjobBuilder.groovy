@@ -139,10 +139,12 @@ spec:
               
         }
             //println envs-("ci")
-            println envs
-            def environments = envs
+            //println envs
+        println envs-("ci") 
+        println envs
                 //environments.remove("ci");
-                println environments-("ci")     
+                
+               
         
         Set<String> repoSet = new HashSet<>();
         String repoList = "";
@@ -170,7 +172,7 @@ spec:
                         filterable(false)
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(''' ${environments} ''')
+                            script(''' ${envs} ''')
                             fallbackScript('"fallback choice"')
                         }
                     }
