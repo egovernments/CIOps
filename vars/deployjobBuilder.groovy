@@ -189,7 +189,7 @@ spec:
                 definition {
                   cps {
                       script('''library 'ci-libs'
-                                 infradeployer(repo:'git@github.com:egovernments/DIGIT-DevOps.git', branch: 'master', helmDir: 'deploy-as-code/helm')''')
+                                 selfDeployer(repo:'git@github.com:egovernments/DIGIT-DevOps.git', branch: 'master', helmDir: 'deploy-as-code/helm')''')
                       sandbox() 
                     }
                 }
