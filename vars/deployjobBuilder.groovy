@@ -135,13 +135,16 @@ spec:
                           envs = envs + ",";
                     }
                 }   
-            envs = envs + "]";        
+            envs = envs + "]";  
               
         }
+            int pos = envs.indexOf("ci")
+            envs.remove(pos);
+            println envs    
             //println envs-("ci")
             //println envs
-        def environments = envs-("ci") 
-        println environments
+       // def environments = envs-("ci") 
+        //println environments
                 //environments.remove("ci");
                 
                
@@ -172,7 +175,7 @@ spec:
                         filterable(false)
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(''' ${environments} ''')
+                            script(''' ${envs} ''')
                             fallbackScript('"fallback choice"')
                         }
                     }
