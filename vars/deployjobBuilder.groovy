@@ -126,21 +126,17 @@ spec:
                 }
             }
             for (int i = 0; i < envFiles.size(); i++) {
-               // if (envFiles[i]==ci){
-                 //   envs = envs + "\"" + envFiles[i+1] + "\"";
-                //} else { 
-                    envs = envs + "\"" + envFiles[i] + "\"";
-                //}    
+                    envs = envs + "\"" + envFiles[i] + "\"";   
                     if(i!=envFiles.size()-1){
                           envs = envs + ",";
                     }
                 }   
             envs = envs + "]";  
-            int pos = envs.indexOf("ci")
-            envs.remove(pos);
-            println envs  
+             
         }
-              
+        pos = envs.indexOf("ci")
+        envs.remove(pos);
+        println envs  
             //println envs-("ci")
             //println envs
        // def environments = envs-("ci") 
