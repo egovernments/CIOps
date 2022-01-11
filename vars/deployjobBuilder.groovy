@@ -136,11 +136,11 @@ spec:
                     }
                 }   
             envs = envs + "]";  
-              
-        }
             int pos = envs.indexOf("ci")
             envs.remove(pos);
-            println envs    
+            println envs  
+        }
+              
             //println envs-("ci")
             //println envs
        // def environments = envs-("ci") 
