@@ -126,14 +126,27 @@ spec:
                 }
             }
             for (int i = 0; i < envFiles.size(); i++) {
-                    envs = envs + "\"" + envFiles[i] + "\"";   
+			  if(envFiles[i] == "ci"){
+				 continue;
+			}
+			else{
+			 envs = envs + "\"" + envFiles[i] + "\"";
                     if(i!=envFiles.size()-1){
                           envs = envs + ",";
-                    }
-                }   
-            envs = envs + "]";  
-             
+                    }	
+			}
+           }
+            envs = envs + "]";
         }
+            //for (int i = 0; i < envFiles.size(); i++) {
+             //       envs = envs + "\"" + envFiles[i] + "\"";   
+               //     if(i!=envFiles.size()-1){
+                 //         envs = envs + ",";
+                  //  }
+               // }   
+            //envs = envs + "]";  
+             
+       // }
         //def pos = envs.indexOf("ci")
         //envs.remove(pos);
         //println envs  
