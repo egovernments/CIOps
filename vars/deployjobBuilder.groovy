@@ -106,7 +106,7 @@ spec:
                 }
               subFiles.each{ println it }
               for (int k = 0; k < subFiles.size(); k++) {
-                    subDirectories = subDirectories + "\"" + subFiles[i] + "\"";
+                    subDirectories = subDirectories + "\"" + dirs[i] + "-" + subFiles[i] + "\"";
                     if(i!=subFiles.size()-1){
                           subDirectories = subDirectories + ",";
                     }
