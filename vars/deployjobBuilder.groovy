@@ -138,9 +138,8 @@ spec:
         }      
         
 		def name = [];           
-		def modulesname = 'grep name: ../deploy-as-code/helm/product-release-charts/Urban/dependancy_chart-urban-v2.4.yaml'.execute() | [ 'awk', '{print $3}'].execute()
-		modulesname.waitFor()
-		modulesname = modulesname.text.split( "\\r?\\n" );
+		sh "grep name: ../deploy-as-code/helm/product-release-charts/Urban/dependancy_chart-urban-v2.4.yaml | awk '{print $3}' > ${tmp_file}"
+		modulesname = readFile(tmp_file).split( "\\r?\\n" );
 		for (int e = 0; e < modulesname.size(); e++ ){
 		if(modulesname[e].contains("m_")){
 				    name.add(modulesname[e])
