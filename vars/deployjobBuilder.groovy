@@ -137,7 +137,7 @@ spec:
             envs = envs + "]";
 		    
          def name = [];
-	 sh "grep 'name:' ./deploy-as-code/helm/product-release-charts/Urban/dependancy_chart-urban-v2.4.yaml | cut -d " " -f 7 > ${tmp_file}"
+	 sh "grep 'name:' ./deploy-as-code/helm/product-release-charts/Urban/dependancy_chart-urban-v2.4.yaml | cut -d" " -f7 > ${tmp_file}"
 		modulesname = readFile(tmp_file).split( "\\r?\\n" );
 		for (int e = 0; e < modulesname.size(); e++ ){
 		if(modulesname[e].contains("m_")){
