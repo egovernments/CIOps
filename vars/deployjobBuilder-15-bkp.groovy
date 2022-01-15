@@ -4,9 +4,6 @@ import org.egov.jenkins.models.JobConfig
 import org.egov.jenkins.models.BuildConfig
 import groovy.io.*
 import groovy.transform.Field
-import groovy.yaml.YamlSlurper
-import groovy.io.FileType
-
 
 def call(Map params) {
 
@@ -56,7 +53,12 @@ spec:
         //def envs = [];
         def tmp_file = ".files_list"
         Map<String,List<String>> jobmap = new HashMap<>();
-        Map<String,List<String>> modulemap = new HashMap<>();
+        //def newdirs = "[\"digit\",\"mgramseva\",\"ifix\"]";
+        //def newenvFiles = "[\"dev\",\"stg\",\"uat\"]";
+        //@Field Map<String,String> newjobmap = new HashMap<>();
+        //newjobmap.put("digit","[\"1.1\",\"1.2\",\"1.3\"]")
+        //newjobmap.put("mgramseva","[\"2.1\",\"2.2\",\"2.3\"]")
+        //newjobmap.put("ifix","[\"3.1\",\"3.2\",\"3.3\"]")
         StringBuilder jobDslScript = new StringBuilder();
         String directories = "[";
         String subDirectories = "[";
@@ -65,6 +67,15 @@ spec:
             String dirName = Utils.getDirName(url);
             dir(dirName) {
                  git url: url, credentialsId: 'git_read'
+                 //def folder = new File("${env.WORKSPACE}/${folderdir}")
+                 //sh """
+                  //pwd
+                  //ls -ltr
+                //"""
+                 //folder.eachFile FileType.DIRECTORIES, {
+                   // dirs << it.name
+                 // }
+                // dirs = Utils.listFiles(folderdir)
                  
                   sh "ls ${folderdir} > ${tmp_file}"
                   dirs = readFile(tmp_file).split( "\\r?\\n" );
@@ -91,28 +102,19 @@ spec:
                   sh "rm -f ${tmp_file}"
 
                   for (int j = 0; j < subfolderlist.size(); j++) {
-                   //subFiles.add(subfolderlist[j].substring(subfolderlist[j].lastIndexOf("-")+1,subfolderlist[j].indexOf(".y")))
-                   subFiles.add(subfolderlist[j].substring(subfolderlist[j].indexOf("-")+1,subfolderlist[j].indexOf(".y")))
+                   subFiles.add(subfolderlist[j].substring(subfolderlist[j].lastIndexOf("-")+1,subfolderlist[j].indexOf(".y")))
                 }
-                subFiles.each{ println it }
-                subFiles = subFiles.sort()
+              subFiles.each{ println it }
+              for (int k = 0; k < subFiles.size(); k++) {
+                    subDirectories = subDirectories + "\"" + dirs[i] + "-" + subFiles[i] + "\"";
+                    if(i!=subFiles.size()-1){
+                          subDirectories = subDirectories + ",";
+                    }
+                }
+                subDirectories = subDirectories + "]";
                 jobmap.put(dirs[i], subFiles)
-               for (int k = 0; k < subFiles.size(); k++){
-                  def modules = []
-                  def ys = new File( "./deploy-as-code/helm/product-release-charts/" + dirs[i] + '/' + 'dependancy_chart' + '-' + subFiles[k] + "." + 'yaml')
-                   ys.withReader { reader ->
-                    // Use parse method of YamlSlurper.
-                    def yaml = new YamlSlurper().parse(reader)
-                    yaml = yaml.modules.name
-                    for (int e = 0; e < yaml.size(); e++ )
-                    if(yaml[e].contains("m_")){
-                    modules.add(yaml[e])
-                    }
-                    modulemap.put(subFiles[k], modules)  
-                    }
-              }  
+                subDirectories = "[";
             }
-            println modulemap
 
             def envfolderlist = []
             sh "ls ${envdir} > ${tmp_file}"
@@ -135,7 +137,26 @@ spec:
 			}
            }
             envs = envs + "]";
-        }      
+        }
+            //for (int i = 0; i < envFiles.size(); i++) {
+             //       envs = envs + "\"" + envFiles[i] + "\"";   
+               //     if(i!=envFiles.size()-1){
+                 //         envs = envs + ",";
+                  //  }
+               // }   
+            //envs = envs + "]";  
+             
+       // }
+        //def pos = envs.indexOf("ci")
+        //envs.remove(pos);
+        //println envs  
+            //println envs-("ci")
+            //println envs
+       // def environments = envs-("ci") 
+        //println environments
+                //environments.remove("ci");
+                
+               
         
         Set<String> repoSet = new HashSet<>();
         String repoList = "";
@@ -178,18 +199,6 @@ spec:
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Project')	
-                    }
-                    activeChoiceReactiveParam('Modules') {
-                        description('choose Modules from release chart from multiple choices')
-                        filterable(false)
-                        choiceType('PT_CHECKBOX')
-                        groovyScript {
-                            script(''' 
-                            def testmap = ${modulemap.inspect()}
-                                return testmap.get(Release-Version)''')
-                            fallbackScript('"fallback choice"')
-                        }
-                        referencedParameter('Release-Version')	
                     }
                     booleanParam("Cluster_Configs", false, "Whenever you made changes to the deployment conifg ensure the cluster_config check is checked to pick the latest configs from the deployment")
                     booleanParam("Print_Manifest", true, "Whenever you want to deployment manifest ensure the uncheck checked box")
