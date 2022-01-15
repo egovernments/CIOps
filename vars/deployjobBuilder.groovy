@@ -4,7 +4,7 @@ import org.egov.jenkins.models.JobConfig
 import org.egov.jenkins.models.BuildConfig
 import groovy.io.*
 import groovy.transform.Field
-import groovy.yaml.YamlSlurper
+//import groovy.yaml.YamlSlurper
 import groovy.io.FileType
 
 
@@ -97,22 +97,22 @@ spec:
                 subFiles.each{ println it }
                 subFiles = subFiles.sort()
                 jobmap.put(dirs[i], subFiles)
-               for (int k = 0; k < subFiles.size(); k++){
-                  def modules = []
-                  def ys = new File( "./deploy-as-code/helm/product-release-charts/" + dirs[i] + '/' + 'dependancy_chart' + '-' + subFiles[k] + "." + 'yaml')
-                   ys.withReader { reader ->
+              // for (int k = 0; k < subFiles.size(); k++){
+              //    def modules = []
+              //    def ys = new File( "./deploy-as-code/helm/product-release-charts/" + dirs[i] + '/' + 'dependancy_chart' + '-' + subFiles[k] + "." + 'yaml')
+              //     ys.withReader { reader ->
                     // Use parse method of YamlSlurper.
-                    def yaml = new YamlSlurper().parse(reader)
-                    yaml = yaml.modules.name
-                    for (int e = 0; e < yaml.size(); e++ )
-                    if(yaml[e].contains("m_")){
-                    modules.add(yaml[e])
-                    }
-                    modulemap.put(subFiles[k], modules)  
-                    }
-              }  
+             //       def yaml = new YamlSlurper().parse(reader)
+             //       yaml = yaml.modules.name
+             //       for (int e = 0; e < yaml.size(); e++ )
+             //       if(yaml[e].contains("m_")){
+             //       modules.add(yaml[e])
+             //       }
+             //       modulemap.put(subFiles[k], modules)  
+             //       }
+            //  }  
             }
-            println modulemap
+            //println modulemap
 
             def envfolderlist = []
             sh "ls ${envdir} > ${tmp_file}"
@@ -178,18 +178,6 @@ spec:
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Project')	
-                    }
-                    activeChoiceReactiveParam('Modules') {
-                        description('choose Modules from release chart from multiple choices')
-                        filterable(false)
-                        choiceType('PT_CHECKBOX')
-                        groovyScript {
-                            script(''' 
-                            def testmap = ${modulemap.inspect()}
-                                return testmap.get(Release-Version)''')
-                            fallbackScript('"fallback choice"')
-                        }
-                        referencedParameter('Release-Version')	
                     }
                     booleanParam("Cluster_Configs", false, "Whenever you made changes to the deployment conifg ensure the cluster_config check is checked to pick the latest configs from the deployment")
                     booleanParam("Print_Manifest", true, "Whenever you want to deployment manifest ensure the uncheck checked box")
