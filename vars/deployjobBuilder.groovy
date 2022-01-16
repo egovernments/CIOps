@@ -201,8 +201,8 @@ spec:
                         choiceType('CHECKBOX')
                         groovyScript {
                             script(''' 
-                            def testmap = ${modulemap.inspect()}
-                                return testmap.get(Release-Version)''')
+                            def modulemap = ${modulemap.inspect()}
+                                 return modulemap.get(Release-Version)''')
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Release-Version')	
