@@ -198,7 +198,7 @@ spec:
 		    activeChoiceReactiveParam('Modules') {
                         description('choose Modules from release chart from multiple choices')
                         filterable(false)
-                        choiceType('PT_CHECKBOX')
+                        choiceType('CHECKBOX')
                         groovyScript {
                             script(''' 
                             def testmap = ${modulemap.inspect()}
