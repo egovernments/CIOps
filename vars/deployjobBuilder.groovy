@@ -79,16 +79,16 @@ podTemplate(yaml: """
           for (int i = 0; i < lTargetEnvs.size(); i++) {
               sEnvs = sEnvs + "\"" + lTargetEnvs[i] + "\""
               if (i != lTargetEnvs.size() - 1) {
-                sEnvs =+ ","
+                sEnvs = sEnvs + ","
               }
           }
-          sEnvs =+ "]"
+          sEnvs = sEnvs + "]"
 
           //Read all the Product(i) Folder and Go inside to read the chart(j), version(k) and modules (e)
           for (int i = 0; i < lProducts.size(); i++) {
-              sProducts =+ "\"" + lProducts[i] + "\""
+              sProducts = sProducts + "\"" + lProducts[i] + "\""
               if (i != lProducts.size() - 1) {
-                  sProducts =+ ","
+                  sProducts = sProducts + ","
               }
 
               sh "ls ${releaseChartDir}/${lProducts[i]} > ${tmp_file}"
@@ -121,9 +121,8 @@ podTemplate(yaml: """
                       mapVersionsCoreModules.put(lVersions[k], lCoreModules)
                   }
               }
-
           }
-          sProducts =+ "]"
+          sProducts = sProducts + "]"
       }
 
       //jobDslScript.append("""folder("self-provision")"""); 
