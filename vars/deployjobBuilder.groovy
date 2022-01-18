@@ -1,9 +1,9 @@
-/* groovylint-disable LineLength */
+
 import org.egov.jenkins.Utils
 import groovy.io.*
 
 def call(Map params) {
-podTemplate(yaml: '''
+podTemplate(yaml: """
   kind: Pod
   metadata:
     name: build-utils
@@ -37,7 +37,7 @@ podTemplate(yaml: '''
         limits:
           memory: "256Mi"
           cpu: "200m"
-''')
+""");
 
   {
     node(POD_LABEL) {
@@ -126,6 +126,8 @@ podTemplate(yaml: '''
           sProducts =+ ']'
       }
 
+      jobDslScript.append("""folder("self-provision")"""); 
+
       jobDslScript.append("""
             pipelineJob("self-provision/deploy") {
                 description()
@@ -196,7 +198,7 @@ podTemplate(yaml: '''
                 }
                 disabled(false)
             }
-      """)
+      """);
 
       stage('Building jobs') {
         sh """
