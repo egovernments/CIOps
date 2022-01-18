@@ -58,8 +58,8 @@ podTemplate(yaml: '''
       String sProducts = '['
       String sEnvs = '['
 
-      //String sReleaseChartsDirPath = Utils.getDirName(url)
-      readDir() {
+      String sReleaseChartsDirPath = Utils.getDirName(url)
+      dir(sReleaseChartsDirPath) {
           git url: url, credentialsId: 'git_read'
 
           //Read the env files(i) list
