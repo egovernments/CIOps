@@ -126,8 +126,7 @@ podTemplate(yaml: '''
           sProducts =+ ']'
       }
 
-
-      jobDslScript.append('''
+      jobDslScript.append("""
             pipelineJob("self-provision/deploy") {
                 description()
                 keepDependencies(false)
@@ -197,7 +196,7 @@ podTemplate(yaml: '''
                 }
                 disabled(false)
             }
-      ''')
+      """)
 
       stage('Building jobs') {
         sh """
