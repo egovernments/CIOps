@@ -158,7 +158,7 @@ podTemplate(yaml: """
                     activeChoiceReactiveParam('Services') {
                         description('Select the intended modules to be Installed')
                         filterable(false)
-                        choiceType('CHECKBOX')
+                        choiceType('ET_FORMATTED_HTML')
                         groovyScript {
                             script(''' 
                                   html_to_be_rendered = "<table><tr>"
@@ -177,6 +177,7 @@ podTemplate(yaml: """
                                   html_to_be_rendered = "${html_to_be_rendered}</tr></table>"
 
                                   return html_to_be_rendered
+                              ''')    
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Release-Version')
