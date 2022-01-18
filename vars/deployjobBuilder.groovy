@@ -144,10 +144,6 @@ spec:
         Set<String> repoSet = new HashSet<>();
         String repoList = "";
 
-          jobDslScript.append("""
-              folder("self-provision")
-              """); 
-
             jobDslScript.append("""
             pipelineJob("self-provision/deploy") {
                 description()
@@ -220,6 +216,6 @@ spec:
         }              
 
     }
-
+        }
 }
 }
