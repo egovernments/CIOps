@@ -139,7 +139,7 @@ podTemplate(yaml: """
                         filterable(false)
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(""" ${sEnvs} """)
+                            script(''' ${sEnvs} ''')
                             fallbackScript('"fallback choice"')
                         }
                     }
@@ -149,7 +149,7 @@ podTemplate(yaml: """
                         filterable(false)
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(""" ${sProducts} """)
+                            script(''' ${sProducts} ''')
                             fallbackScript('"fallback choice"')
                         }
                     }
@@ -159,7 +159,7 @@ podTemplate(yaml: """
                         filterable(false)
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(""" return ${mapProductsVersions.inspect()}.get(Project) """)
+                            script(''' return ${mapProductsVersions.inspect()}.get(Project) ''')
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Project')
@@ -170,7 +170,7 @@ podTemplate(yaml: """
                         filterable(false)
                         choiceType('CHECKBOX')
                         groovyScript {
-                            script(""" return ${mapVersionsCoreModules.inspect()}.get(Release-Version) """)
+                            script(''' return ${mapVersionsCoreModules.inspect()}.get(Release-Version) ''')
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Release-Version')
@@ -181,7 +181,7 @@ podTemplate(yaml: """
                         filterable(false)
                         choiceType('CHECKBOX')
                         groovyScript {
-                            script(""" return ${mapVersionsFeatureModules.inspect()}.get(Release-Version) """)
+                            script(''' return ${mapVersionsFeatureModules.inspect()}.get(Release-Version) ''')
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Release-Version')
@@ -191,8 +191,8 @@ podTemplate(yaml: """
                 }
                 definition {
                   cps {
-                      script("""library 'ci-libs'
-                        selfDeployer(repo:'git@github.com:egovernments/DIGIT-DevOps.git', branch: 'master', helmDir: 'deploy-as-code/helm')""")
+                      script('''library 'ci-libs'
+                        selfDeployer(repo:'git@github.com:egovernments/DIGIT-DevOps.git', branch: 'master', helmDir: 'deploy-as-code/helm')''')
                       sandbox()
                   }
                 }
