@@ -37,7 +37,7 @@ podTemplate(yaml: """
         limits:
           memory: "256Mi"
           cpu: "200m"
-""");
+""")
 
   {
     node(POD_LABEL) {
@@ -126,7 +126,7 @@ podTemplate(yaml: """
           sProducts =+ ']'
       }
 
-      jobDslScript.append("""folder("self-provision")"""); 
+      //jobDslScript.append("""folder("self-provision")"""); 
 
       jobDslScript.append("""
             pipelineJob("self-provision/deploy") {
