@@ -1,3 +1,4 @@
+/* groovylint-disable LineLength */
 import org.egov.jenkins.Utils
 import groovy.io.*
 
@@ -41,151 +42,168 @@ podTemplate(yaml: '''
   {
     node(POD_LABEL) {
       String url = params.url
-      String folderdir = './deploy-as-code/helm/product-release-charts'
+      String releaseChartDir = './deploy-as-code/helm/product-release-charts'
       String envdir = './deploy-as-code/helm/environments'
-      def dirs = []
-      def envFiles = []
+      def lTargetEnvs = []
+      def lProducts = []
+      def lCharts = []
+      def lVersions = []
+      def lFeatureModules = []
+      def lCoreModules = []
       def tmp_file = '.files_list'
-      Map<String,List<String>> jobmap = new HashMap<>()
-      Map<String,List<String>> modulemap = new HashMap<>()
+      Map<String,List<String>> mapProductsVersions = new HashMap<>()
+      Map<String,List<String>> mapVersionsFeatureModules = new HashMap<>()
+      Map<String,List<String>> mapVersionsCoreModules = new HashMap<>()
       StringBuilder jobDslScript = new StringBuilder()
-      String directories = '['
-      String subDirectories = '['
-      String envs = '['
+      String sProducts = '['
+      String sEnvs = '['
 
-      String dirName = Utils.getDirName(url)
-      dir(dirName) {
+      //String sReleaseChartsDirPath = Utils.getDirName(url)
+      readDir() {
           git url: url, credentialsId: 'git_read'
-          sh "ls ${folderdir} > ${tmp_file}"
-          dirs = readFile(tmp_file).split( "\\r?\\n" )
+
+          //Read the env files(i) list
+          sh "ls ${envdir} > ${tmp_file}"
+          lEnvs = readFile(tmp_file).split( "\\r?\\n" )
           sh "rm -f ${tmp_file}"
-          dirs.each { println it }
-
-          for (int i = 0; i < dirs.size(); i++) {
-            directories = directories + "\"" + dirs[i] + "\""
-            if (i != dirs.size() - 1) {
-              directories = directories + ','
-            }
+          for (int i = 0; i < lEnvs.size(); i++) {
+              if (!lEnvs[i].contains('secrets') && lEnvs[i].contains('ci')) {
+                lTargetEnvs.add(lEnvs[i].substring(0, lEnvs[i].indexOf('.yaml')))
+              }
           }
-          directories =+ ']'
 
-          for (int i = 0; i < dirs.size(); i++) {
-              def subfolderlist = []
-              def subFiles = []
-              sh "ls ${folderdir}/${dirs[i]} > ${tmp_file}"
-              subfolderlist = readFile(tmp_file).split( "\\r?\\n" )
+          //Read the Charts dir list
+          sh "ls ${releaseChartDir} > ${tmp_file}"
+          lProducts = readFile(tmp_file).split( "\\r?\\n" )
+          sh "rm -f ${tmp_file}"
+          for (int i = 0; i < lTargetEnvs.size(); i++) {
+              sEnvs = sEnvs + "\"" + lTargetEnvs[i] + "\""
+              if (i != lTargetEnvs.size() - 1) {
+                sEnvs =+ ','
+              }
+          }
+          sEnvs =+ ']'
+
+          //Read all the Product(i) Folder and Go inside to read the chart(j), version(k) and modules (e)
+          for (int i = 0; i < lProducts.size(); i++) {
+              sProducts =+ "\"" + lProducts[i] + "\""
+              if (i != lProducts.size() - 1) {
+                  sProducts =+ ','
+              }
+
+              sh "ls ${releaseChartDir}/${lProducts[i]} > ${tmp_file}"
+              lCharts = readFile(tmp_file).split( "\\r?\\n" )
               sh "rm -f ${tmp_file}"
 
-            for (int j = 0; j < subfolderlist.size(); j++) {
-              subFiles.add(subfolderlist[j].substring(subfolderlist[j].indexOf('-') + 1, subfolderlist[j].indexOf('.y')))
-            }
 
-            subFiles.each { println it }
-            subFiles = subFiles.sort()
-            jobmap.put(dirs[i], subFiles)
+              // Read the chart files
+              for (int j = 0; j < lCharts.size(); j++) {
+                  lVersions.add(lCharts[j].substring(lCharts[j].indexOf('-') + 1, lCharts[j].indexOf('.y')))
+              }
+              lVersions.each { println it }
+              lVersions = lVersions.sort()
+              mapProductsVersions.put(lProducts[i], lVersions)
 
-            for (int k = 0; k < subFiles.size(); k++) {
-                def modules = []
-                sh "grep 'name:' ${folderdir}/${dirs[i]}/dependancy_chart-${subFiles[k]}.yaml | cut -d' ' -f7 > ${tmp_file}"
-                modulesname = readFile(tmp_file).split( "\\r?\\n" )
-                sh "rm -f ${tmp_file}"
-                for (int e = 0; e < modulesname.size(); e++ ) {
-                  if (modulesname[e].contains('m_')) {
-                    modules.add(modulesname[e])
-                  }
-                  modulemap.put(subFiles[k], modules)
-                }
-            }
-          }
+              // Extract the versions from the chart
+              for (int k = 0; k < lVersions.size(); k++) {
+                  sh "grep 'name:' ${releaseChartDir}/${lProducts[i]}/dependancy_chart-${lVersions[k]}.yaml | cut -d' ' -f7 > ${tmp_file}"
+                  lTotalModules = readFile(tmp_file).split( "\\r?\\n" )
+                  sh "rm -f ${tmp_file}"
 
-          def envfolderlist = []
-          sh "ls ${envdir} > ${tmp_file}"
-          envfolderlist = readFile(tmp_file).split( "\\r?\\n" )
-          sh "rm -f ${tmp_file}"
-          for (int i = 0; i < envfolderlist.size(); i++) {
-            if (!envfolderlist[i].contains('secrets') && envfolderlist[i].contains('ci')) {
-              envFiles.add(envfolderlist[i].substring(0, envfolderlist[i].indexOf('.yaml')))
-            }
-          }
-          for (int i = 0; i < envFiles.size(); i++) {
-            envs = envs + "\"" + envFiles[i] + "\""
-            if (i != envFiles.size() - 1) {
-              envs = envs + ','
-            }
-          }
-          envs =+ ']'
-
-          //Set<String> repoSet = new HashSet<>()
-          //String repoList = ''
-
-          //jobDslScript.append('''folder("self-provision")''')
-
-          jobDslScript.append('''
-                pipelineJob("self-provision/deploy") {
-                    description()
-                    keepDependencies(false)
-                    parameters {
-                        activeChoiceParam('Project') {
-                            description('choose Project from multiple choices')
-                            filterable(false)
-                            choiceType('SINGLE_SELECT')
-                            groovyScript {
-                                script(''' ${directories} ''')
-                                fallbackScript('"fallback choice"')
-                            }
-                        }
-
-                        activeChoiceParam('Environments') {
-                            description('choose environment from multiple choices')
-                            filterable(false)
-                            choiceType('SINGLE_SELECT')
-                            groovyScript {
-                                script(''' ${envs} ''')
-                                fallbackScript('"fallback choice"')
-                            }
-                        }
-
-                        activeChoiceReactiveParam('Release-Version') {
-                            description('choose release chart version from multiple choices')
-                            filterable(false)
-                            choiceType('SINGLE_SELECT')
-                            groovyScript {
-                                script(''' return ${jobmap.inspect()}.get(Project) ''')
-                                fallbackScript('"fallback choice"')
-                            }
-                            referencedParameter('Project')
-                        }
-
-                        activeChoiceReactiveParam('Modules') {
-                            description('Select the intended modules to be Installed')
-                            filterable(false)
-                            choiceType('CHECKBOX')
-                            groovyScript {
-                                script(''' return ${modulemap.inspect()}.get(Release-Version) ''')
-                                fallbackScript('"fallback choice"')
-                            }
-                            referencedParameter('Release-Version')
-                        }
-                        booleanParam("Cluster_Configs", false, "Whenever you made changes to the deployment conifg ensure the cluster_config check is checked to pick the latest configs from the deployment")
-                        booleanParam("Print_Manifest", true, "Whenever you want to deployment manifest ensure the uncheck checked box")
-                    }
-                    definition {
-                      cps {
-                          script('''library 'ci-libs'
-                            selfDeployer(repo:'git@github.com:egovernments/DIGIT-DevOps.git', branch: 'master', helmDir: 'deploy-as-code/helm')''')
-                          sandbox()
+                  //Extract the core and feature modules from each speific versions
+                  for (int e = 0; e < lTotalModules.size(); e++ ) {
+                      if (lTotalModules[e].contains('m_')) {
+                          lFeatureModules.add(lTotalModules[e])
+                      } else {
+                          lCoreModules.add(lTotalModules[e])
                       }
-                    }
-                    disabled(false)
-                }
-          ''')
+                      mapVersionsFeatureModules.put(lVersions[k], lFeatureModules)
+                      mapVersionsCoreModules.put(lVersions[k], lCoreModules)
+                  }
+              }
 
-          stage('Building jobs') {
-            sh """
-                  echo \"Job DsL Script:  ${jobDslScript.toString()}\"
-              """
-            jobDsl scriptText: jobDslScript.toString()
           }
+          sProducts =+ ']'
+      }
+
+
+      jobDslScript.append('''
+            pipelineJob("self-provision/deploy") {
+                description()
+                keepDependencies(false)
+                parameters {
+
+                  activeChoiceParam('Environments') {
+                        description('Choose the Intended environment to deploy')
+                        filterable(false)
+                        choiceType('SINGLE_SELECT')
+                        groovyScript {
+                            script(''' ${sEnvs} ''')
+                            fallbackScript('"fallback choice"')
+                        }
+                    }
+
+                    activeChoiceParam('Project') {
+                        description('choose Project from multiple choices')
+                        filterable(false)
+                        choiceType('SINGLE_SELECT')
+                        groovyScript {
+                            script(''' ${sProducts} ''')
+                            fallbackScript('"fallback choice"')
+                        }
+                    }
+
+                    activeChoiceReactiveParam('Release-Version') {
+                        description('choose release chart version from multiple choices')
+                        filterable(false)
+                        choiceType('SINGLE_SELECT')
+                        groovyScript {
+                            script(''' return ${mapProductsVersions.inspect()}.get(Project) ''')
+                            fallbackScript('"fallback choice"')
+                        }
+                        referencedParameter('Project')
+                    }
+
+                    activeChoiceReactiveParam('Core-Modules') {
+                        description('Select the intended modules to be Installed')
+                        filterable(false)
+                        choiceType('CHECKBOX')
+                        groovyScript {
+                            script(''' return ${mapVersionsCoreModules.inspect()}.get(Release-Version) ''')
+                            fallbackScript('"fallback choice"')
+                        }
+                        referencedParameter('Release-Version')
+                    }
+
+                    activeChoiceReactiveParam('Feature-Modules') {
+                        description('Select the intended modules to be Installed')
+                        filterable(false)
+                        choiceType('CHECKBOX')
+                        groovyScript {
+                            script(''' return ${mapVersionsFeatureModules.inspect()}.get(Release-Version) ''')
+                            fallbackScript('"fallback choice"')
+                        }
+                        referencedParameter('Release-Version')
+                    }
+                    booleanParam("Cluster_Configs", false, "Whenever you made changes to the deployment conifg ensure the cluster_config check is checked to pick the latest configs from the deployment")
+                    booleanParam("Print_Manifest", true, "Whenever you want to deployment manifest ensure the uncheck checked box")
+                }
+                definition {
+                  cps {
+                      script('''library 'ci-libs'
+                        selfDeployer(repo:'git@github.com:egovernments/DIGIT-DevOps.git', branch: 'master', helmDir: 'deploy-as-code/helm')''')
+                      sandbox()
+                  }
+                }
+                disabled(false)
+            }
+      ''')
+
+      stage('Building jobs') {
+        sh """
+              echo \"Job DsL Script:  ${jobDslScript.toString()}\"
+          """
+        jobDsl scriptText: jobDslScript.toString()
       }
     }
   }
