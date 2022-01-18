@@ -42,33 +42,33 @@ podTemplate(yaml: """
   {
     node(POD_LABEL) {
       String url = params.url
-      String releaseChartDir = './deploy-as-code/helm/product-release-charts'
-      String envdir = './deploy-as-code/helm/environments'
+      String releaseChartDir = "./deploy-as-code/helm/product-release-charts"
+      String envdir = "./deploy-as-code/helm/environments"
       def lTargetEnvs = []
       def lProducts = []
       def lCharts = []
       def lVersions = []
       def lFeatureModules = []
       def lCoreModules = []
-      def tmp_file = '.files_list'
+      def tmp_file = ".files_list"
       Map<String,List<String>> mapProductsVersions = new HashMap<>()
       Map<String,List<String>> mapVersionsFeatureModules = new HashMap<>()
       Map<String,List<String>> mapVersionsCoreModules = new HashMap<>()
       StringBuilder jobDslScript = new StringBuilder()
-      String sProducts = '['
-      String sEnvs = '['
+      String sProducts = "["
+      String sEnvs = "["
 
       String sReleaseChartsDirPath = Utils.getDirName(url)
       dir(sReleaseChartsDirPath) {
-          git url: url, credentialsId: 'git_read'
+          git url: url, credentialsId: "git_read"
 
           //Read the env files(i) list
           sh "ls ${envdir} > ${tmp_file}"
           lEnvs = readFile(tmp_file).split( "\\r?\\n" )
           sh "rm -f ${tmp_file}"
           for (int i = 0; i < lEnvs.size(); i++) {
-              if (!lEnvs[i].contains('secrets') && lEnvs[i].contains('ci')) {
-                lTargetEnvs.add(lEnvs[i].substring(0, lEnvs[i].indexOf('.yaml')))
+              if (!lEnvs[i].contains("secrets") && lEnvs[i].contains("ci")) {
+                lTargetEnvs.add(lEnvs[i].substring(0, lEnvs[i].indexOf(".yaml")))
               }
           }
 
@@ -79,16 +79,16 @@ podTemplate(yaml: """
           for (int i = 0; i < lTargetEnvs.size(); i++) {
               sEnvs = sEnvs + "\"" + lTargetEnvs[i] + "\""
               if (i != lTargetEnvs.size() - 1) {
-                sEnvs =+ ','
+                sEnvs =+ ","
               }
           }
-          sEnvs =+ ']'
+          sEnvs =+ "]"
 
           //Read all the Product(i) Folder and Go inside to read the chart(j), version(k) and modules (e)
           for (int i = 0; i < lProducts.size(); i++) {
               sProducts =+ "\"" + lProducts[i] + "\""
               if (i != lProducts.size() - 1) {
-                  sProducts =+ ','
+                  sProducts =+ ","
               }
 
               sh "ls ${releaseChartDir}/${lProducts[i]} > ${tmp_file}"
@@ -98,7 +98,7 @@ podTemplate(yaml: """
 
               // Read the chart files
               for (int j = 0; j < lCharts.size(); j++) {
-                  lVersions.add(lCharts[j].substring(lCharts[j].indexOf('-') + 1, lCharts[j].indexOf('.y')))
+                  lVersions.add(lCharts[j].substring(lCharts[j].indexOf("-") + 1, lCharts[j].indexOf(".y")))
               }
               lVersions.each { println it }
               lVersions = lVersions.sort()
@@ -112,7 +112,7 @@ podTemplate(yaml: """
 
                   //Extract the core and feature modules from each speific versions
                   for (int e = 0; e < lTotalModules.size(); e++ ) {
-                      if (lTotalModules[e].contains('m_')) {
+                      if (lTotalModules[e].contains("m_")) {
                           lFeatureModules.add(lTotalModules[e])
                       } else {
                           lCoreModules.add(lTotalModules[e])
@@ -123,7 +123,7 @@ podTemplate(yaml: """
               }
 
           }
-          sProducts =+ ']'
+          sProducts =+ "]"
       }
 
       //jobDslScript.append("""folder("self-provision")"""); 
@@ -139,7 +139,7 @@ podTemplate(yaml: """
                         filterable(false)
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(''' ${sEnvs} ''')
+                            script(""" ${sEnvs} """)
                             fallbackScript('"fallback choice"')
                         }
                     }
@@ -149,7 +149,7 @@ podTemplate(yaml: """
                         filterable(false)
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(''' ${sProducts} ''')
+                            script(""" ${sProducts} """)
                             fallbackScript('"fallback choice"')
                         }
                     }
@@ -159,7 +159,7 @@ podTemplate(yaml: """
                         filterable(false)
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(''' return ${mapProductsVersions.inspect()}.get(Project) ''')
+                            script(""" return ${mapProductsVersions.inspect()}.get(Project) """)
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Project')
@@ -170,7 +170,7 @@ podTemplate(yaml: """
                         filterable(false)
                         choiceType('CHECKBOX')
                         groovyScript {
-                            script(''' return ${mapVersionsCoreModules.inspect()}.get(Release-Version) ''')
+                            script(""" return ${mapVersionsCoreModules.inspect()}.get(Release-Version) """)
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Release-Version')
@@ -181,7 +181,7 @@ podTemplate(yaml: """
                         filterable(false)
                         choiceType('CHECKBOX')
                         groovyScript {
-                            script(''' return ${mapVersionsFeatureModules.inspect()}.get(Release-Version) ''')
+                            script(""" return ${mapVersionsFeatureModules.inspect()}.get(Release-Version) """)
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Release-Version')
@@ -191,8 +191,8 @@ podTemplate(yaml: """
                 }
                 definition {
                   cps {
-                      script('''library 'ci-libs'
-                        selfDeployer(repo:'git@github.com:egovernments/DIGIT-DevOps.git', branch: 'master', helmDir: 'deploy-as-code/helm')''')
+                      script("""library 'ci-libs'
+                        selfDeployer(repo:'git@github.com:egovernments/DIGIT-DevOps.git', branch: 'master', helmDir: 'deploy-as-code/helm')""")
                       sandbox()
                   }
                 }
