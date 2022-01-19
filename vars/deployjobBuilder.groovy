@@ -164,7 +164,7 @@ podTemplate(yaml: """
                                   def html_to_be_rendered = "<table><tr>"
                                   def service_list = ${mapVersionsModules.inspect()}.get(Release-Version)
                                   service_list.each { service ->
-                                    html_to_be_rendered = """
+                                    html_to_be_rendered = '''
                                       ${html_to_be_rendered}
                                       <tr>
                                       <td>
@@ -172,7 +172,7 @@ podTemplate(yaml: """
                                       <label title=\"${service}\" class=\" \">${service}</label>
                                       </td>
                                       </tr>
-                                      """
+                                      '''
                                   }
                                   html_to_be_rendered = "${html_to_be_rendered}</tr></table>"
 
