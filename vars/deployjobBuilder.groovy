@@ -62,6 +62,7 @@ def call(Map params) {
             for (int i = 0; i < lAllEnvs.size(); i++) {
                 if (!lAllEnvs[i].contains("secrets") && !lAllEnvs[i].contains("ci")) {
                   sTargetEnvs += lAllEnvs[i].substring(0, lAllEnvs[i].indexOf(".yaml"))
+                }
                 if(i !=lAllEnvs.size()-1 ){
                       sTargetEnvs += ",";
                 }
@@ -101,17 +102,17 @@ def call(Map params) {
                     sh "rm -f ${tmp_file}"
 
 			              for (int e = 0; e < modulesname.size(); e++ ){
-                      if(modulesname[e].contains("m_")){
-                          lFeatureModules.add(modulesname[e])
-                      } else {
-                          lCoreModules.add(modulesname[e])
-                      }
-                      mapFeatureModules.put(lVersions[k], lFeatureModules)
-                      mapCoreModules.put(lVersions[k], lCoreModules)  
+                        if(modulesname[e].contains("m_")){
+                            lFeatureModules.add(modulesname[e])
+                        } else {
+                            lCoreModules.add(modulesname[e])
+                        }
+                        mapFeatureModules.put(lVersions[k], lFeatureModules)
+                        mapCoreModules.put(lVersions[k], lCoreModules)  
                     }
-                }  
+                  }   
+              }
             }
-
         }      
     
 
@@ -187,18 +188,15 @@ def call(Map params) {
                 }
             }
             disabled(false)
-          }            
-        """);
+          }""");
         
-        stage('Building jobs') {
-          sh """
-            echo \"Job DsL Script:  ${jobDslScript.toString()}\"
-            """
-            jobDsl scriptText: jobDslScript.toString()
-            
-        }              
-
+          stage('Building jobs') {
+            sh """
+              echo \"Job DsL Script:  ${jobDslScript.toString()}\"
+              """
+              jobDsl scriptText: jobDslScript.toString()
+              
+          }              
     }
-
   }
 }
