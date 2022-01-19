@@ -54,6 +54,7 @@ podTemplate(yaml: """
       Map<String, List<String>> mapProductsVersions = new HashMap<>()
       Map<String, List<String>> mapVersionsFeatureModules = new HashMap<>()
       Map<String, List<String>> mapVersionsCoreModules = new HashMap<>()
+      Map<String, List<String>> mapVersionsAllModules = new HashMap<>()
       def mapProductsVersionsModules = new HashMap<>()
 
       StringBuilder jobDslScript = new StringBuilder()
