@@ -161,8 +161,8 @@ podTemplate(yaml: """
                         choiceType('ET_FORMATTED_HTML')
                         groovyScript {
                             script(""" 
-                                  html_to_be_rendered = "<table><tr>"
-                                  service_list = ${mapVersionsModules.inspect()}.get(Release-Version)
+                                  def html_to_be_rendered = "<table><tr>"
+                                  def service_list = ${mapVersionsModules.inspect()}.get(Release-Version)
                                   service_list.each { service ->
                                     html_to_be_rendered = """
                                       ${html_to_be_rendered}
