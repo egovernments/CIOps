@@ -60,7 +60,7 @@ def call(Map params) {
             lAllEnvs = readFile(tmp_file).split( "\\r?\\n" )
             sh "rm -f ${tmp_file}"
             for (int i = 0; i < lAllEnvs.size(); i++) {
-                if (!lAllEnvs[i].contains("secrets") && !lAllEnvs[i].contains("ci")) {
+                if (!lAllEnvs[i].contains("secrets") || !lAllEnvs[i].contains("ci")) {
                   sTargetEnvs += lAllEnvs[i].substring(0, lAllEnvs[i].indexOf(".yaml"))
                 }
                 if(i !=lAllEnvs.size()-1 ){
@@ -144,8 +144,9 @@ def call(Map params) {
                     choiceType('SINGLE_SELECT')
                     groovyScript {
                         script(''' 
-                        def testmap = ${mapVersions.inspect()}
-                            return testmap.get(Project)''')
+                              def mapVersions = ${mapVersions.inspect()}
+                              return mapVersions.get(Project)
+                        ''')
                         fallbackScript('"fallback choice"')
                     }
                     referencedParameter('Project')	
@@ -156,8 +157,9 @@ def call(Map params) {
                     choiceType('CHECKBOX')
                     groovyScript {
                         script(''' 
-                        def mapCoreModules = ${mapCoreModules.inspect()}
-                        return mapCoreModules.get(Release-Version)''')
+                              def mapCoreModules = ${mapCoreModules.inspect()}
+                              return mapCoreModules.get('digit-v2.6')
+                        ''')
                         fallbackScript('"fallback choice"')
                     }
                     referencedParameter('Release-Version')	
@@ -169,8 +171,9 @@ def call(Map params) {
                     choiceType('CHECKBOX')
                     groovyScript {
                         script(''' 
-                        def mapFeatureModules = ${mapFeatureModules.inspect()}
-                        return mapFeatureModules.get(Release-Version)''')
+                              def mapFeatureModules = ${mapFeatureModules.inspect()}
+                              return mapFeatureModules.get('digit-v2.6')
+                        ''')
                         fallbackScript('"fallback choice"')
                     }
                     referencedParameter('Release-Version')	
