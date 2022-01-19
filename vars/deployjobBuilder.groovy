@@ -60,13 +60,11 @@ def call(Map params) {
             lAllEnvs = readFile(tmp_file).split( "\\r?\\n" )
             sh "rm -f ${tmp_file}"
             for (int i = 0; i < lAllEnvs.size(); i++) {
-                if (!lAllEnvs[i].contains("-secrets") || !lAllEnvs[i].contains("ci")) {
+                if !lAllEnvs[i].contains("-secrets") {
                   lTargetEnvs.add(lAllEnvs[i].substring(0, lAllEnvs[i].indexOf(".yaml")))
                 }
             }
             sTargetEnvs = "[\"" + lTargetEnvs.join("\",\"") + "\"]";
-
-            println {sTargetEnvs}
 
             // Read products
             sh "ls ${sChartsDirPath} > ${tmp_file}"
