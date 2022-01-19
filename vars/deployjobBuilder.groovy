@@ -112,8 +112,7 @@ def call(Map params) {
                     }
                   }   
               }
-            }
-        }      
+            }      
     
 
         jobDslScript.append("""
@@ -197,6 +196,6 @@ def call(Map params) {
               jobDsl scriptText: jobDslScript.toString()
               
           }              
-    }
-  
+      }
+      }
 }
