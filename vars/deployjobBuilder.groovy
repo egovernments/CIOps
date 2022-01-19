@@ -50,6 +50,7 @@ podTemplate(yaml: """
       List lFeatureModules = []
       List lCoreModules = []
       def tmp_file = ".files_list"
+      Map<String, List<String>> mapVersionsModules = new HashMap<>() 
       Map<String, List<String>> mapProductsVersions = new HashMap<>()
       Map<String, List<String>> mapVersionsFeatureModules = new HashMap<>()
       Map<String, List<String>> mapVersionsCoreModules = new HashMap<>()
@@ -69,7 +70,9 @@ podTemplate(yaml: """
               if (!lAllEnvs[i].contains("secrets") && !lAllEnvs[i].contains("ci")) {
                 lTargetEnvs.add(lAllEnvs[i].substring(0, lAllEnvs[i].indexOf(".yaml")))
               }
-          } 
+          }
+
+          lTargetEnvs.each{ println it } 
 
           //Read the Charts dir list
           sh "ls ${releaseChartDir} > ${tmp_file}"
