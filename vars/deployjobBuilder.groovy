@@ -42,15 +42,15 @@ def call(Map params) {
         String url = params.url;
         String sChartsDirPath = './deploy-as-code/helm/product-release-charts';
         String sEnvDirPath = './deploy-as-code/helm/environments';
-        def lProducts = [];
-        def envFiles = []
         def tmp_file = ".files_list"
         Map<String,List<String>> mapVersions = new HashMap<>();
         Map<String,List<String>> mapFeatureModules = new HashMap<>();
         Map<String,List<String>> mapCoreModules = new HashMap<>();
         StringBuilder jobDslScript = new StringBuilder();
         String sProducts = "[";
-        String sTargetEnvs = "[";  
+        List <String> lTargetEnvs = [];  
+        String sTargetEnvs = ""; 
+
         String dirName = Utils.getDirName(url);
         dir(dirName) {
             git url: url, credentialsId: 'git_read'
@@ -60,14 +60,13 @@ def call(Map params) {
             lAllEnvs = readFile(tmp_file).split( "\\r?\\n" )
             sh "rm -f ${tmp_file}"
             for (int i = 0; i < lAllEnvs.size(); i++) {
-                if (!lAllEnvs[i].contains("secrets") || !lAllEnvs[i].contains("ci")) {
-                  sTargetEnvs += lAllEnvs[i].substring(0, lAllEnvs[i].indexOf(".yaml"))
-                }
-                if(i !=lAllEnvs.size()-1 ){
-                      sTargetEnvs += ",";
+                if (!lAllEnvs[i].contains("-secrets") || !lAllEnvs[i].contains("ci")) {
+                  lTargetEnvs.add(lAllEnvs[i].substring(0, lAllEnvs[i].indexOf(".yaml")))
                 }
             }
-            sTargetEnvs += "]";
+            sTargetEnvs = "[\"" + lTargetEnvs.join("\",\"") + "\"]";
+
+            println {sTargetEnvs}
 
             // Read products
             sh "ls ${sChartsDirPath} > ${tmp_file}"
