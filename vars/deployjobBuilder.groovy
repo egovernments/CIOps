@@ -160,7 +160,7 @@ podTemplate(yaml: """
                         filterable(false)
                         choiceType('ET_FORMATTED_HTML')
                         groovyScript {
-                            script(''' 
+                            script(""" 
                                   html_to_be_rendered = "<table><tr>"
                                   service_list = ${mapVersionsModules.inspect()}.get(Release-Version)
                                   service_list.each { service ->
@@ -172,12 +172,12 @@ podTemplate(yaml: """
                                       <label title=\"${service}\" class=\" \">${service}</label>
                                       </td>
                                       </tr>
-                                  """
+                                      """
                                   }
                                   html_to_be_rendered = "${html_to_be_rendered}</tr></table>"
 
                                   return html_to_be_rendered
-                              ''')    
+                              """)    
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Release-Version')
