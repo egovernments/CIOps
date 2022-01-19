@@ -162,27 +162,9 @@ podTemplate(yaml: """
                     activeChoiceReactiveParam('Services') {
                         description('Select the intended modules to be Installed')
                         filterable(false)
-                        choiceType('ET_FORMATTED_HTML')
+                        choiceType('CHECKBOX')
                         groovyScript {
-                            script(''' 
-                                  html_to_be_rendered = "<table><tr>"
-                                  service_list = ${mapVersionsModules.inspect()}.get(Release-Version)
-                                  service_list.each{ print it }
-                                  service_list.each { service ->
-                                    html_to_be_rendered = '''
-                                      ${html_to_be_rendered}
-                                      <tr>
-                                      <td>
-                                      <input name=\"value\" alt=\"${service}\" json=\"${service}\" type=\"checkbox\" class=\" \">
-                                      <label title=\"${service}\" class=\" \">${service}</label>
-                                      </td>
-                                      </tr>
-                                      '''
-                                  }
-                                  html_to_be_rendered = "${html_to_be_rendered}</tr></table>"
-
-                                  return html_to_be_rendered
-                              ''')    
+                            script(''' return ${mapProductsVersionsModules.inspect()}.get(Release-Version) ''')   
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Release-Version')
