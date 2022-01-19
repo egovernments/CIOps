@@ -47,7 +47,7 @@ def call(Map params) {
         def tmp_file = ".files_list"
         Map<String,List<String>> mapVersions = new HashMap<>();
         Map<String,List<String>> mapFeatureModules = new HashMap<>();
-        Map<String,List<String>> mapCoreModuls = new HashMap<>();
+        Map<String,List<String>> mapCoreModules = new HashMap<>();
         StringBuilder jobDslScript = new StringBuilder();
         String sProducts = "[";
         List<String> lTargetEnvs = []    
@@ -147,7 +147,20 @@ def call(Map params) {
                     }
                     referencedParameter('Project')	
                 }
-                activeChoiceReactiveParam('Modules') {
+                activeChoiceReactiveParam('Core-Platform') {
+                    description('choose Modules from release chart from multiple choices')
+                    filterable(false)
+                    choiceType('CHECKBOX')
+                    groovyScript {
+                        script(''' 
+                        def mapCoreModules = ${mapCoreModules.inspect()}
+                        return mapCoreModules.get(Release-Version)''')
+                        fallbackScript('"fallback choice"')
+                    }
+                    referencedParameter('Release-Version')	
+                } 
+
+                activeChoiceReactiveParam('Feature-Modules') {
                     description('choose Modules from release chart from multiple choices')
                     filterable(false)
                     choiceType('CHECKBOX')
@@ -158,7 +171,7 @@ def call(Map params) {
                         fallbackScript('"fallback choice"')
                     }
                     referencedParameter('Release-Version')	
-                } 
+                }
                 booleanParam("Cluster_Configs", false, "Whenever you made changes to the deployment conifg ensure the cluster_config check is checked to pick the latest configs from the deployment")
                 booleanParam("Print_Manifest", true, "Whenever you want to deployment manifest ensure the uncheck checked box")
             }  
