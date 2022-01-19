@@ -58,6 +58,7 @@ podTemplate(yaml: """
       def mapProductsVersionsModules = new HashMap<>()
 
       StringBuilder jobDslScript = new StringBuilder()
+      StringBuilder html_to_be_rendered = new StringBuilder()
 
       String sReleaseChartsDirPath = Utils.getDirName(url)
       dir(sReleaseChartsDirPath) {
@@ -72,8 +73,6 @@ podTemplate(yaml: """
                 lTargetEnvs.add(lAllEnvs[i].substring(0, lAllEnvs[i].indexOf(".yaml")))
               }
           }
-
-          lTargetEnvs.each{ println it } 
 
           //Read the Charts dir list
           sh "ls ${releaseChartDir} > ${tmp_file}"
@@ -94,6 +93,7 @@ podTemplate(yaml: """
                   lVersions.add(lChartFiles[j].substring(lChartFiles[j].indexOf("-") + 1, lChartFiles[j].indexOf(".y")))
               }
               lVersions.sort()
+              lVersions.each{ print it } 
 
               // Extract the modules from the chart
               for (int k = 0; k < lChartFiles.size(); k++) {
@@ -165,8 +165,9 @@ podTemplate(yaml: """
                         choiceType('ET_FORMATTED_HTML')
                         groovyScript {
                             script(''' 
-                                  def html_to_be_rendered = "<table><tr>"
-                                  def service_list = ${mapVersionsModules.inspect()}.get(Release-Version)
+                                  html_to_be_rendered = "<table><tr>"
+                                  service_list = ${mapVersionsModules.inspect()}.get(Release-Version)
+                                  service_list.each{ print it }
                                   service_list.each { service ->
                                     html_to_be_rendered = '''
                                       ${html_to_be_rendered}
