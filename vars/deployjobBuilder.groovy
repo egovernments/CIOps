@@ -46,16 +46,8 @@ podTemplate(yaml: """
       String envdir = "./deploy-as-code/helm/environments"
       List lTargetEnvs = []
       List lProducts = []
-      List lVersions = []
-      List lFeatureModules = []
-      List lCoreModules = []
       def tmp_file = ".files_list"
-      Map<String, List<String>> mapVersionsModules = new HashMap<>() 
-      Map<String, List<String>> mapProductsVersions = new HashMap<>()
-      Map<String, List<String>> mapVersionsFeatureModules = new HashMap<>()
-      Map<String, List<String>> mapVersionsCoreModules = new HashMap<>()
-      Map<String, List<String>> mapVersionsAllModules = new HashMap<>()
-      def mapProductsVersionsModules = new HashMap<>()
+      def mapProductsVersionsModules = []
 
       StringBuilder jobDslScript = new StringBuilder()
       StringBuilder html_to_be_rendered = new StringBuilder()
@@ -65,6 +57,7 @@ podTemplate(yaml: """
           git url: url, credentialsId: "git_read"
 
           //Read the env files(i) list
+
           sh "ls ${envdir} > ${tmp_file}"
           lAllEnvs = readFile(tmp_file).split( "\\r?\\n" )
           sh "rm -f ${tmp_file}"
@@ -75,49 +68,46 @@ podTemplate(yaml: """
           }
 
           //Read the Charts dir list
+          
           sh "ls ${releaseChartDir} > ${tmp_file}"
-          lProdFolders = readFile(tmp_file).split( "\\r?\\n" )
+          lProducts = readFile(tmp_file).split( "\\r?\\n" )
           sh "rm -f ${tmp_file}"
           
           //Read all the Product(i) Folder and Go inside to read the chart(j), version(k) and modules (e)
-          for (int i = 0; i < lProdFolders.size(); i++) {
-              lProducts.add(lProdFolders[i])
+          for (int i = 0; i < lProducts.size(); i++) {
 
-              sh "ls ${releaseChartDir}/${lProdFolders[i]} > ${tmp_file}"
+              def lChartFiles = []
+              sh "ls ${releaseChartDir}/${lProducts[i]} > ${tmp_file}"
               lChartFiles = readFile(tmp_file).split( "\\r?\\n" )
               sh "rm -f ${tmp_file}"
               lChartFiles.sort()
 
-              // Read the chart files and Extract the versions from the chart
-              for (int j = 0; j < lChartFiles.size(); j++) {
-                  lVersions.add(lChartFiles[j].substring(lChartFiles[j].indexOf("-") + 1, lChartFiles[j].indexOf(".y")))
-              }
-              lVersions.sort()
-              lVersions.each{ print it } 
+              Map<String, List<String>> mapCoreModules = new HashMap<>()
+              Map<String, List<String>> mapFeatureModules = new HashMap<>()
+              Map<String, mapCoreModules, mapFeatureModules> mapVersionsModules = new HashMap<>()
 
               // Extract the modules from the chart
               for (int k = 0; k < lChartFiles.size(); k++) {
-                  sh "grep 'name:' ${releaseChartDir}/${lProdFolders[i]}/${lChartFiles[k]} | cut -d' ' -f7 > ${tmp_file}"
+                  def lTotalModules = []
+                  Map<String, List<String>> featureModules = new HashMap<>()
+                  Map<String, List<String>> coreModules = new HashMap<>()
+
+                  sh "grep 'name:' ${releaseChartDir}/${lProducts[i]}/${lChartFiles[k]} | cut -d' ' -f7 > ${tmp_file}"
                   lTotalModules = readFile(tmp_file).split( "\\r?\\n" )
                   sh "rm -f ${tmp_file}"
 
                   //Extract the core and feature modules from each speific versions
                   for (int e = 0; e < lTotalModules.size(); e++ ) {
-                      if (lTotalModules[e].contains("m_")) {
-                          lFeatureModules.add(lTotalModules[e])
-                      } else {
-                          lCoreModules.add(lTotalModules[e])
-                      }
 
+                      if (lTotalModules[e].contains("m_")) {
+                          featureModules.add("FeatureModules", lTotalModules[e])
+                      } else {
+                          coreModules.add("CoreModules", lTotalModules[e])
+                      }
                   }
-                  
-                  mapVersionsModules["FeatureModules"] = lFeatureModules
-                  mapVersionsModules["CoreModules"] = lCoreModules
-                  mapVersionsAllModules["${lVersions[k]}"] = mapVersionsModules 
-              }
-              
-            mapProductsVersions["${lProdFolders[i]}"] = lVersions      
-            mapProductsVersionsModules["${lProdFolders[i]}"] = mapVersionsAllModules
+                mapVersionsModules.add(lChartFiles[k].substring(lChartFiles[k].indexOf("-") + 1, lChartFiles[k].indexOf(".y")), coreModules, featureModules)
+              }          
+              mapProductsVersionsModules.add(lProducts[i], mapVersionsModules)
           }
       }
 
@@ -153,7 +143,7 @@ podTemplate(yaml: """
                         filterable(false)
                         choiceType('SINGLE_SELECT')
                         groovyScript {
-                            script(''' return ${mapProductsVersions.inspect()}.get(Project) ''')
+                            script(''' return ${mapVersionsModules.inspect()}.get(Project) ''')
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Project')
@@ -164,7 +154,7 @@ podTemplate(yaml: """
                         filterable(false)
                         choiceType('CHECKBOX')
                         groovyScript {
-                            script(''' return ${mapProductsVersionsModules.inspect()}.get(Release-Version) ''')   
+                            script(''' return ${mapProductsVersionsModules.inspect()}.get(Release-Version).get(Project) ''')   
                             fallbackScript('"fallback choice"')
                         }
                         referencedParameter('Release-Version')
