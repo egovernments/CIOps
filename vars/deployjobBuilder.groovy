@@ -40,9 +40,9 @@ def call(Map params) {
       {
         node(POD_LABEL) {
         String url = params.url;
-        String folderdir = './deploy-as-code/helm/product-release-charts';
-        String envdir = './deploy-as-code/helm/environments';
-        def dirs = [];
+        String sChartsDirPath = './deploy-as-code/helm/product-release-charts';
+        String sEnvDirPath = './deploy-as-code/helm/environments';
+        def lProducts = [];
         def envFiles = []
         def tmp_file = ".files_list"
         Map<String,List<String>> mapVersions = new HashMap<>();
@@ -50,50 +50,53 @@ def call(Map params) {
         Map<String,List<String>> mapCoreModules = new HashMap<>();
         StringBuilder jobDslScript = new StringBuilder();
         String sProducts = "[";
-        List<String> lTargetEnvs = []    
+        String sTargetEnvs = "[";  
         String dirName = Utils.getDirName(url);
         dir(dirName) {
             git url: url, credentialsId: 'git_read'
 
-            // Read products
-            sh "ls ${folderdir} > ${tmp_file}"
-            dirs = readFile(tmp_file).split( "\\r?\\n" );
-            sh "rm -f ${tmp_file}"
-
-            for (int i = 0; i < dirs.size(); i++) {
-                sProducts = sProducts + "\"" + dirs[i] + "\"";
-                if(i!=dirs.size()-1){
-                      sProducts = sProducts + ",";
-                }
-            }
-            sProducts = sProducts + "]";
-
             // Read Envs
-            sh "ls ${envdir} > ${tmp_file}"
+            sh "ls ${sEnvDirPath} > ${tmp_file}"
             lAllEnvs = readFile(tmp_file).split( "\\r?\\n" )
             sh "rm -f ${tmp_file}"
             for (int i = 0; i < lAllEnvs.size(); i++) {
                 if (!lAllEnvs[i].contains("secrets") && !lAllEnvs[i].contains("ci")) {
-                  lTargetEnvs.add(lAllEnvs[i].substring(0, lAllEnvs[i].indexOf(".yaml")))
+                  sTargetEnvs += lAllEnvs[i].substring(0, lAllEnvs[i].indexOf(".yaml"))
+                if(i !=lAllEnvs.size()-1 ){
+                      sTargetEnvs += ",";
                 }
             }
+            sTargetEnvs += "]";
 
-            for (int i = 0; i < dirs.size(); i++) {
+            // Read products
+            sh "ls ${sChartsDirPath} > ${tmp_file}"
+            lProducts = readFile(tmp_file).split( "\\r?\\n" );
+            sh "rm -f ${tmp_file}"
+
+            for (int i = 0; i < lProducts.size(); i++) {
+                sProducts += "\"" + lProducts[i] + "\"";
+                if(i !=lProducts.size()-1 ){
+                      sProducts +=  ",";
+                }
+            }
+            sProducts += "]";
+
+            for (int i = 0; i < lProducts.size(); i++) {
                 def subfolderlist = []
-                def subFiles = []
-                sh "ls ${folderdir}/${dirs[i]} > ${tmp_file}"
+                def lVersions = []
+                sh "ls ${sChartsDirPath}/${lProducts[i]} > ${tmp_file}"
                 subfolderlist = readFile(tmp_file).split( "\\r?\\n" );
                 sh "rm -f ${tmp_file}"
 
                 for (int j = 0; j < subfolderlist.size(); j++) {
-                    subFiles.add(subfolderlist[j].substring(subfolderlist[j].indexOf("-")+1,subfolderlist[j].indexOf(".y")))
+                    lVersions.add(subfolderlist[j].substring(subfolderlist[j].indexOf("-")+1,subfolderlist[j].indexOf(".y")))
                 }
-                subFiles = subFiles.sort()
-                mapVersions.put(dirs[i], subFiles)
-                for (int k = 0; k < subFiles.size(); k++){
+                lVersions = lVersions.sort()
+                mapVersions.put(lProducts[i], lVersions)
+                for (int k = 0; k < lVersions.size(); k++){
                     def lFeatureModules = []
                     def lCoreModules = []
-                    sh "grep 'name:' ${folderdir}/${dirs[i]}/dependancy_chart-${subFiles[k]}.yaml | cut -d' ' -f7 > ${tmp_file}"
+                    sh "grep 'name:' ${sChartsDirPath}/${lProducts[i]}/dependancy_chart-${lVersions[k]}.yaml | cut -d' ' -f7 > ${tmp_file}"
                     modulesname = readFile(tmp_file).split( "\\r?\\n" );
                     sh "rm -f ${tmp_file}"
 
@@ -103,8 +106,8 @@ def call(Map params) {
                       } else {
                           lCoreModules.add(modulesname[e])
                       }
-                      mapFeatureModules.put(subFiles[k], lFeatureModules)
-                      mapCoreModules.put(subFiles[k], lCoreModules)  
+                      mapFeatureModules.put(lVersions[k], lFeatureModules)
+                      mapCoreModules.put(lVersions[k], lCoreModules)  
                     }
                 }  
             }
@@ -122,7 +125,7 @@ def call(Map params) {
                     filterable(false)
                     choiceType('SINGLE_SELECT')
                     groovyScript {
-                        script(''' ${lTargetEnvs} ''')
+                        script(''' ${sTargetEnvs} ''')
                         fallbackScript('"fallback choice"')
                     }
                 }
