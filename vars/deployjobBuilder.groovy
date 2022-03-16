@@ -40,6 +40,7 @@ def call(Map params) {
       {
         node(POD_LABEL) {
         String url = params.url;
+        String branch = 'singleinstance';		
         String sChartsDirPath = './deploy-as-code/helm/product-release-charts';
         String sEnvDirPath = './deploy-as-code/helm/environments';
         def tmp_file = ".files_list"
@@ -53,7 +54,7 @@ def call(Map params) {
 
         String dirName = Utils.getDirName(url);
         dir(dirName) {
-            git url: url, credentialsId: 'git_read'
+            git url: url, branch: branch ,credentialsId: 'git_read'
 
             // Read Envs
             sh "ls ${sEnvDirPath} > ${tmp_file}"
