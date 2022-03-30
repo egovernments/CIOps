@@ -50,7 +50,7 @@ def call(Map params) {
         StringBuilder jobDslScript = new StringBuilder();
         String sProducts = "[";
         List <String> lTargetEnvs = [];  
-        String sTargetEnvs = ""; 
+        String sTargetEnvs = "["; 
 
         String dirName = Utils.getDirName(url);
         dir(dirName) {
@@ -70,8 +70,13 @@ def call(Map params) {
 				continue;
 			}
 			else {	
-                          sTargetEnvs = "[\"" + lTargetEnvs.join("\",\"") + "\"]";
+                          sTargetEnvs = + "\"" + lTargetEnvs[i] + "\"";
+		          if(i!=lTargetEnvs.size()-1){
+				  sTargetEnvs = sTargetEnvs + ",";
+			  }
 			}
+			}
+		  sTargetEnvs = sTargetEnvs + "]";
 		}
 
             // Read products
