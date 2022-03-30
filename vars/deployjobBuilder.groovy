@@ -129,15 +129,6 @@ def call(Map params) {
             description()
             keepDependencies(false)
             parameters {
-                activeChoiceParam('Environments') {
-                    description('choose environment from multiple choices')
-                    filterable(false)
-                    choiceType('SINGLE_SELECT')
-                    groovyScript {
-                        script(''' ${sTargetEnvs} ''')
-                        fallbackScript('"fallback choice"')
-                    }
-                }
                 activeChoiceParam('Project') {
                     description('choose Project from multiple choices')
                     filterable(false)
@@ -159,6 +150,15 @@ def call(Map params) {
                         fallbackScript('"fallback choice"')
                     }
                     referencedParameter('Project')	
+                }
+		activeChoiceParam('Environments') {
+                    description('choose environment from multiple choices')
+                    filterable(false)
+                    choiceType('SINGLE_SELECT')
+                    groovyScript {
+                        script(''' ${sTargetEnvs} ''')
+                        fallbackScript('"fallback choice"')
+                    }
                 }
                 activeChoiceReactiveParam('Core-Platform') {
                     description('choose Modules from release chart from multiple choices')
