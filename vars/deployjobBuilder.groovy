@@ -65,7 +65,14 @@ def call(Map params) {
                   lTargetEnvs.add(lAllEnvs[i].substring(0, lAllEnvs[i].indexOf(".yaml")))
                 }
             }
-            sTargetEnvs = "[\"" + lTargetEnvs.join("\",\"") + "\"]";
+		for (int i = 0; i < lTargetEnvs(); i++ ) {
+			if(lTargetEnvs[i] == 'ci'){
+				continue;
+			}
+			else {	
+                          sTargetEnvs = "[\"" + lTargetEnvs.join("\",\"") + "\"]";
+			}
+		}
 
             // Read products
             sh "ls ${sChartsDirPath} > ${tmp_file}"
