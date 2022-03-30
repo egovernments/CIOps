@@ -65,8 +65,8 @@ def call(Map params) {
                   lTargetEnvs.add(lAllEnvs[i].substring(0, lAllEnvs[i].indexOf(".yaml")))
                 }
             }
-		for (int i = 0; i < lTargetEnvs(); i++ ) {
-			if(lTargetEnvs[i] == 'ci'){
+		for (int i = 0; i < lTargetEnvs.size(); i++ ) {
+			if(lTargetEnvs[i] == "ci"){
 				continue;
 			}
 			else {	
