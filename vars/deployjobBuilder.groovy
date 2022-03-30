@@ -77,7 +77,6 @@ def call(Map params) {
 			}
 			}
 		  sTargetEnvs = sTargetEnvs + "]";
-		}
 
             // Read products
             sh "ls ${sChartsDirPath} > ${tmp_file}"
