@@ -70,8 +70,8 @@ def call(Map params) {
 				continue;
 			}
 			else {	
-                          sTargetEnvs = + "\"" + lTargetEnvs[i] + "\"";
-		          if(i!=lTargetEnvs.size()-1){
+                          sTargetEnvs = sTargetEnvs + "\"" + lTargetEnvs[i] + "\"";
+		          	if(i!=lTargetEnvs.size()-1){
 				  sTargetEnvs = sTargetEnvs + ",";
 			  }
 			}
