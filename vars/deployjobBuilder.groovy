@@ -138,7 +138,7 @@ def call(Map params) {
                         fallbackScript('"fallback choice"')
                     }
                 }
-                activeChoiceReactiveParam('Release-Version') {
+                activeChoiceReactiveParam('Release_Version') {
                     description('choose release chart version from multiple choices')
                     filterable(false)
                     choiceType('SINGLE_SELECT')
@@ -160,7 +160,7 @@ def call(Map params) {
                         fallbackScript('"fallback choice"')
                     }
                 }
-                activeChoiceReactiveParam('Core-Platform') {
+                activeChoiceReactiveParam('Core_Platform') {
                     description('choose Modules from release chart from multiple choices')
                     filterable(false)
                     choiceType('CHECKBOX')
@@ -171,10 +171,10 @@ def call(Map params) {
                         ''')
                         fallbackScript('"fallback choice"')
                     }
-                    referencedParameter('Release-Version')	
+                    referencedParameter('Release_Version')	
                 } 
 
-                activeChoiceReactiveParam('Feature-Modules') {
+                activeChoiceReactiveParam('Feature_Modules') {
                     description('choose Modules from release chart from multiple choices')
                     filterable(false)
                     choiceType('CHECKBOX')
@@ -185,7 +185,7 @@ def call(Map params) {
                         ''')
                         fallbackScript('"fallback choice"')
                     }
-                    referencedParameter('Release-Version')	
+                    referencedParameter('Release_Version')	
                 }
                 booleanParam("Cluster_Configs", false, "Whenever you made changes to the deployment conifg ensure the cluster_config check is checked to pick the latest configs from the deployment")
                 booleanParam("Print_Manifest", true, "Whenever you want to deployment manifest ensure the uncheck checked box")
