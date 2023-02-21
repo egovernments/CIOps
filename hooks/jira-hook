@@ -1,0 +1,33 @@
+#!/bin/bash
+CLIENTHOOKURL="https://raw.githubusercontent.com/egovenrments/CIOps/master/hooks/jira-hook"
+read -p "Enter Your Local Git Workspace Path : " GIT_CHECKOUT_PATH
+GITWORKINGDIR=$(realpath ${GIT_CHECKOUT_PATH})
+read -p "Enter Your  Jira Project Key : " X
+if [ ! -d ${GITWORKINGDIR} ]
+then
+	echo "[  Error  ] ${GITWORKINGDIR} directory does not exists, please enter the complete path of the git workspace."
+	exit 1
+fi
+if [ ! -d ${GITWORKINGDIR}/.git ]
+then 
+	echo "[  Error  ] ${GITWORKINGDIR} is not a git repository."
+	exit 1
+else
+	originUrl=`git --git-dir=${GITWORKINGDIR}/.git config --get remote.origin.url`
+	REPO_BARE_NAME=`echo ${originUrl} | awk -F '/' {'print \$NF'}`
+fi
+echo "Remote Repository : ${originUrl}"
+echo "[  Info   ] Enforcing the hooks policy, Please wait..."
+rm -rf ${GITWORKINGDIR}/.git/hooks/commit-msg
+wget -q -O ${GITWORKINGDIR}/.git/hooks/commit-msg ${CLIENTHOOKURL}
+if [ $? != 0 ]
+then
+	echo "[  Error  ] Unable to apply the hooks to ${GITWORKINGDIR}, please check the permission ..."
+	echo "Please contact your DevOps team."
+	rm -rf ${GITWORKINGDIR}/.git/hooks/commit-msg > /dev/null 2>&1
+	exit 1;
+else
+	chmod +x ${GITWORKINGDIR}/.git/hooks/commit-msg
+	sed -i "4,5 s/WAP/$X/" ${GITWORKINGDIR}/.git/hooks/commit-msg
+	echo "[ Success ] Hooks has been applied for ${GIT_CHECKOUT_PATH}"	
+fi
