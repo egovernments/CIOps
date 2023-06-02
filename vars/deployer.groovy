@@ -15,8 +15,6 @@ spec:
     tty: true
     env:               
     volumeMounts:
-      - name: service-account
-        mountPath: /var/run/secret/cloud.google.com
       - name: kube-config
         mountPath: /root/.kube     
     resources:
