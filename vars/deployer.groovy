@@ -13,12 +13,8 @@ spec:
     command:
     - cat
     tty: true
-    env:  
-      - name: "GOOGLE_APPLICATION_CREDENTIALS"
-        value: "/var/run/secret/cloud.google.com/service-account.json"              
+    env:               
     volumeMounts:
-      - name: service-account
-        mountPath: /var/run/secret/cloud.google.com
       - name: kube-config
         mountPath: /root/.kube     
     resources:
@@ -28,15 +24,7 @@ spec:
       limits:
         memory: "256Mi"
         cpu: "200m"  
-  volumes:
-  - name: service-account
-    projected:
-      sources:
-      - secret:
-          name: jenkins-credentials
-          items:
-            - key: gcpKmsServiceAccount
-              path: service-account.json   
+  volumes:  
   - name: kube-config
     secret:
         secretName: "${pipelineParams.environment}-kube-config"                    
