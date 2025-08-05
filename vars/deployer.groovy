@@ -26,8 +26,8 @@ spec:
         memory: "256Mi"
         cpu: "200m"
       limits:
-        memory: "256Mi"
-        cpu: "200m"  
+        memory: "1024Mi"
+        cpu: "500m"  
   volumes:
   - name: service-account
     projected:
