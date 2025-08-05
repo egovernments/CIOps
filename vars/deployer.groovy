@@ -50,17 +50,13 @@ spec:
                         set +x
                         server_url=\$(kubectl config view -o jsonpath='{.clusters[0].cluster.server}')
                         server_ip=\$(echo "\$server_url" | sed 's|https://||' | cut -d: -f1)
-                        
-                        if host "\$server_ip" | grep -q "googleusercontent.com"; then
-                          echo "GKE cluster detected via reverse DNS (\$server_ip)"
-                          if [ -f "\$GOOGLE_APPLICATION_CREDENTIALS" ]; then
+
+                        if [ -f "\$GOOGLE_APPLICATION_CREDENTIALS" ]; then
                             gcloud auth activate-service-account --key-file="\$GOOGLE_APPLICATION_CREDENTIALS"
                             gcloud config list
-                          else
-                            echo "GOOGLE_APPLICATION_CREDENTIALS not set or file missing"
-                          fi
+                            echo "GCLOUD successfully set-up"
                         else
-                          echo "Non-GKE cluster detected. Skipping gcloud auth."
+                          echo "GOOGLE_APPLICATION_CREDENTIALS not set or file missing"
                         fi
 
                         echo ""
