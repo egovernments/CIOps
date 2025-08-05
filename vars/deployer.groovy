@@ -81,7 +81,7 @@ spec:
 
                         echo ""
                         if [ "${env.IMAGES}" = "ALL" ]; then
-                          CMD="\$CMD template"
+                          CMD="\$CMD apply"
                           echo "Deploying all services via: \$CMD"
                           eval "\$CMD"
                           exit \$?
@@ -114,7 +114,7 @@ spec:
                         IFS="\$OLD_IFS"
 
                         echo ""
-                        CMD="\$CMD \$SERVICE_ARGS template"
+                        CMD="\$CMD \$SERVICE_ARGS apply"
                         echo "Executing: \$CMD"
                         eval "\$CMD"
                 """
