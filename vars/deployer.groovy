@@ -28,6 +28,8 @@ spec:
       limits:
         memory: "256Mi"
         cpu: "200m"  
+  serviceAccount: jenkins
+  serviceAccountName: jenkins
   volumes:
   - name: service-account
     projected:
