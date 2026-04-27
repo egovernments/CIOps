@@ -78,11 +78,19 @@ spec:
                 final String altRepoPush = env.ALT_REPO_PUSH ?: "false"
 
                 stage('Build multi-arch') {
-                    // Both pods are created simultaneously — neither waits for the other
-                    parallel(
-                        failFast: false,
-                        'amd64': {
-                            podTemplate(yaml: """
+                    // Each build config gets its own fresh kaniko pod — kaniko v1.x corrupts the
+                    // container filesystem after a build, so it must run once per container.
+                    for (int j = 0; j < buildConfigs.size(); j++) {
+                        final BuildConfig bc = buildConfigs.get(j)
+                        final String workDir = bc.getWorkDir().replaceFirst(getCommonBasePath(bc.getWorkDir(), bc.getDockerFile()), "./")
+                        final String amd64Image = "${finalRepoName}/${bc.getImageName()}:${baseTag}-amd64"
+                        final String arm64Image  = "${finalRepoName}/${bc.getImageName()}:${baseTag}-arm64"
+
+                        // Both pods are created simultaneously — neither waits for the other
+                        parallel(
+                            failFast: false,
+                            'amd64': {
+                                podTemplate(yaml: """
 kind: Pod
 metadata:
   name: kaniko-amd64
@@ -168,21 +176,15 @@ spec:
             - key: dockerConfigJson
               path: config.json
 """) {
-                                node(POD_LABEL) {
-                                    checkout scm
-                                    container(name: 'kaniko', shell: '/busybox/sh') {
-                                        withEnv(["PATH=/busybox:/kaniko:$PATH"]) {
-                                            for (BuildConfig bc : buildConfigs) {
-                                                echo "${bc.getWorkDir()} ${bc.getDockerFile()}"
-                                                if (!fileExists(bc.getWorkDir()) || !fileExists(bc.getDockerFile()))
-                                                    throw new Exception("Working directory / dockerfile does not exist!")
-
-                                                String workDir = bc.getWorkDir().replaceFirst(getCommonBasePath(bc.getWorkDir(), bc.getDockerFile()), "./")
-                                                String amd64Image = "${finalRepoName}/${bc.getImageName()}:${baseTag}-amd64"
-                                                echo "Building ${amd64Image}"
-
+                                    node(POD_LABEL) {
+                                        checkout scm
+                                        echo "${bc.getWorkDir()} ${bc.getDockerFile()}"
+                                        if (!fileExists(bc.getWorkDir()) || !fileExists(bc.getDockerFile()))
+                                            throw new Exception("Working directory / dockerfile does not exist!")
+                                        container(name: 'kaniko', shell: '/busybox/sh') {
+                                            withEnv(["PATH=/busybox:/kaniko:$PATH"]) {
                                                 if (altRepoPush.equalsIgnoreCase("true")) {
-                                                    String gcrImage = "${finalGcrRepoName}/${bc.getImageName()}:${env.BUILD_NUMBER}-${scmVars.BRANCH}-${scmVars.VERSION}-${scmVars.ACTUAL_COMMIT}-amd64"
+                                                    final String gcrImage = "${finalGcrRepoName}/${bc.getImageName()}:${env.BUILD_NUMBER}-${scmVars.BRANCH}-${scmVars.VERSION}-${scmVars.ACTUAL_COMMIT}-amd64"
                                                     sh """
                                                         /kaniko/executor \\
                                                           -f `pwd`/${bc.getDockerFile()} \\
@@ -224,10 +226,9 @@ spec:
                                         }
                                     }
                                 }
-                            }
-                        },
-                        'arm64': {
-                            podTemplate(yaml: """
+                            },
+                            'arm64': {
+                                podTemplate(yaml: """
 kind: Pod
 metadata:
   name: kaniko-arm64
@@ -290,14 +291,10 @@ spec:
             - key: dockerConfigJson
               path: config.json
 """) {
-                                node(POD_LABEL) {
-                                    checkout scm
-                                    container(name: 'kaniko', shell: '/busybox/sh') {
-                                        withEnv(["PATH=/busybox:/kaniko:$PATH"]) {
-                                            for (BuildConfig bc : buildConfigs) {
-                                                String workDir = bc.getWorkDir().replaceFirst(getCommonBasePath(bc.getWorkDir(), bc.getDockerFile()), "./")
-                                                String arm64Image = "${finalRepoName}/${bc.getImageName()}:${baseTag}-arm64"
-                                                echo "Building ${arm64Image}"
+                                    node(POD_LABEL) {
+                                        checkout scm
+                                        container(name: 'kaniko', shell: '/busybox/sh') {
+                                            withEnv(["PATH=/busybox:/kaniko:$PATH"]) {
                                                 sh """
                                                     /kaniko/executor \\
                                                       -f `pwd`/${bc.getDockerFile()} \\
@@ -309,7 +306,7 @@ spec:
                                                       --build-arg nexusPassword=\$NEXUS_PASSWORD \\
                                                       --build-arg ciDbUsername=\$CI_DB_USER \\
                                                       --build-arg ciDbpassword=\$CI_DB_PWD \\
-                                                      --customPlatform=linux/arm64 \\
+                                                      --custom-platform=linux/arm64 \\
                                                       --cache=true --cache-repo=egovio/cache-arm64 \\
                                                       --single-snapshot=true --snapshotMode=time \\
                                                       --destination=${arm64Image} \\
@@ -321,8 +318,8 @@ spec:
                                     }
                                 }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
 
                 stage('Create multi-arch manifests') {
