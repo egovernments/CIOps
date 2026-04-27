@@ -134,7 +134,7 @@ spec:
             key: ciDbpassword
     volumeMounts:
       - name: jenkins-docker-cfg
-        mountPath: /root/.docker
+        mountPath: /kaniko/.docker
       - name: kaniko-cache
         mountPath: /cache
       - name: service-account
@@ -272,7 +272,7 @@ spec:
             key: ciDbpassword
     volumeMounts:
       - name: jenkins-docker-cfg
-        mountPath: /root/.docker
+        mountPath: /kaniko/.docker
     resources:
       requests:
         memory: "2200Mi"
