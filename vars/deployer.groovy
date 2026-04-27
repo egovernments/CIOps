@@ -9,7 +9,7 @@ metadata:
 spec:
   containers:
   - name: egov-deployer
-    image: egovio/egov-deployer:3-master-931c51ff
+    image: egovio/egov-deployer:vapt-security-check-1
     command:
     - cat
     tty: true
