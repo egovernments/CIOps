@@ -7,27 +7,31 @@ kind: Pod
 metadata:
   name: egov-deployer
 spec:
+  securityContext:
+    fsGroup: 1000
   containers:
   - name: egov-deployer
     image: egovio/egov-deployer:vapt-security-check-1
     command:
     - cat
     tty: true
-    env:  
+    env:
       - name: "GOOGLE_APPLICATION_CREDENTIALS"
-        value: "/var/run/secret/cloud.google.com/service-account.json"              
+        value: "/var/run/secret/cloud.google.com/service-account.json"
+      - name: "KUBECONFIG"
+        value: "/tmp/kube-config/config"
     volumeMounts:
       - name: service-account
         mountPath: /var/run/secret/cloud.google.com
       - name: kube-config
-        mountPath: /root/.kube     
+        mountPath: /tmp/kube-config
     resources:
       requests:
         memory: "256Mi"
         cpu: "200m"
       limits:
         memory: "256Mi"
-        cpu: "200m"  
+        cpu: "200m"
   serviceAccount: jenkins
   serviceAccountName: jenkins
   volumes:
