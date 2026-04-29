@@ -11,7 +11,7 @@ spec:
     fsGroup: 1000
   containers:
   - name: egov-deployer
-    image: egovio/egov-deployer:vapt-security-check-1
+    image: egovio/egov-deployer:vapt-security-check-2
     command:
     - cat
     tty: true
