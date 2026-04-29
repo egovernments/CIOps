@@ -15,6 +15,9 @@ spec:
     command:
     - cat
     tty: true
+    securityContext:
+      runAsUser: 1000
+      runAsNonRoot: true
     env:
       - name: "GOOGLE_APPLICATION_CREDENTIALS"
         value: "/var/run/secret/cloud.google.com/service-account.json"
