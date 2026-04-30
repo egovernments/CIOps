@@ -87,19 +87,19 @@ spec:
                 final String altRepoPush = env.ALT_REPO_PUSH ?: "false"
 
                 stage('Build multi-arch') {
-                    // Single flat parallel: "amd64 » app", "amd64 » db", "arm64 » app", "arm64 » db"
-                    // Pipeline Graph View renders each key as a named branch — no nested parallel needed.
-                    def buildBranches = [failFast: false]
-                    for (int j = 0; j < buildConfigs.size(); j++) {
-                        final BuildConfig bc = buildConfigs.get(j)
-                        final String workDir = bc.getWorkDir().replaceFirst(getCommonBasePath(bc.getWorkDir(), bc.getDockerFile()), "./")
-                        final String amd64Image = "${finalRepoName}/${bc.getImageName()}:${baseTag}-amd64"
-                        final String arm64Image  = "${finalRepoName}/${bc.getImageName()}:${baseTag}-arm64"
-                        final String bcLabel = bc.getImageName().endsWith('-db') ? 'db' : 'app'
-                        final def res = kanikoResources[bcLabel] ?: kanikoResources.app
-
-                        buildBranches["amd64 » ${bcLabel}"] = {
-                            podTemplate(yaml: """
+                    // amd64 and arm64 run in parallel; within each arch, buildConfigs run as
+                    // sequential stage() calls so Pipeline Graph View renders them as branch nodes.
+                    parallel(
+                        failFast: false,
+                        'amd64': {
+                            for (int j = 0; j < buildConfigs.size(); j++) {
+                                final BuildConfig bc = buildConfigs.get(j)
+                                final String workDir = bc.getWorkDir().replaceFirst(getCommonBasePath(bc.getWorkDir(), bc.getDockerFile()), "./")
+                                final String amd64Image = "${finalRepoName}/${bc.getImageName()}:${baseTag}-amd64"
+                                final String bcLabel = bc.getImageName().endsWith('-db') ? 'db' : 'app'
+                                final def res = kanikoResources[bcLabel] ?: kanikoResources.app
+                                stage(bcLabel) {
+                                    podTemplate(yaml: """
 kind: Pod
 metadata:
   name: kaniko-amd64
@@ -185,58 +185,66 @@ spec:
             - key: dockerConfigJson
               path: config.json
 """) {
-                                node(POD_LABEL) {
-                                    checkout scm
-                                    echo "${bc.getWorkDir()} ${bc.getDockerFile()}"
-                                    if (!fileExists(bc.getWorkDir()) || !fileExists(bc.getDockerFile()))
-                                        throw new Exception("Working directory / dockerfile does not exist!")
-                                    container(name: 'kaniko', shell: '/busybox/sh') {
-                                        withEnv(["PATH=/busybox:/kaniko:$PATH"]) {
-                                            if (altRepoPush.equalsIgnoreCase("true")) {
-                                                final String gcrImage = "${finalGcrRepoName}/${bc.getImageName()}:${env.BUILD_NUMBER}-${scmVars.BRANCH}-${scmVars.VERSION}-${scmVars.ACTUAL_COMMIT}-amd64"
-                                                sh """
-                                                    /kaniko/executor \\
-                                                      -f `pwd`/${bc.getDockerFile()} \\
-                                                      -c `pwd`/${bc.getContext()} \\
-                                                      --build-arg WORK_DIR=${workDir} \\
-                                                      --build-arg token=\$GIT_ACCESS_TOKEN \\
-                                                      ${reactAppPublicPathArg} \\
-                                                      --build-arg nexusUsername=\$NEXUS_USERNAME \\
-                                                      --build-arg nexusPassword=\$NEXUS_PASSWORD \\
-                                                      --build-arg ciDbUsername=\$CI_DB_USER \\
-                                                      --build-arg ciDbpassword=\$CI_DB_PWD \\
-                                                      --cache=true --cache-dir=/cache --cache-repo=egovio/cache \\
-                                                      --destination=${amd64Image} \\
-                                                      --destination=${gcrImage} \\
-                                                      --no-push=${noPushImage}
-                                                """
-                                                echo "${amd64Image} and ${gcrImage} pushed!"
-                                            } else {
-                                                sh """
-                                                    /kaniko/executor \\
-                                                      -f `pwd`/${bc.getDockerFile()} \\
-                                                      -c `pwd`/${bc.getContext()} \\
-                                                      --build-arg WORK_DIR=${workDir} \\
-                                                      --build-arg token=\$GIT_ACCESS_TOKEN \\
-                                                      ${reactAppPublicPathArg} \\
-                                                      --build-arg nexusUsername=\$NEXUS_USERNAME \\
-                                                      --build-arg nexusPassword=\$NEXUS_PASSWORD \\
-                                                      --build-arg ciDbUsername=\$CI_DB_USER \\
-                                                      --build-arg ciDbpassword=\$CI_DB_PWD \\
-                                                      --cache=true --cache-dir=/cache --cache-repo=egovio/cache \\
-                                                      --destination=${amd64Image} \\
-                                                      --no-push=${noPushImage}
-                                                """
-                                                echo "${amd64Image} pushed!"
+                                        node(POD_LABEL) {
+                                            checkout scm
+                                            echo "${bc.getWorkDir()} ${bc.getDockerFile()}"
+                                            if (!fileExists(bc.getWorkDir()) || !fileExists(bc.getDockerFile()))
+                                                throw new Exception("Working directory / dockerfile does not exist!")
+                                            container(name: 'kaniko', shell: '/busybox/sh') {
+                                                withEnv(["PATH=/busybox:/kaniko:$PATH"]) {
+                                                    if (altRepoPush.equalsIgnoreCase("true")) {
+                                                        final String gcrImage = "${finalGcrRepoName}/${bc.getImageName()}:${env.BUILD_NUMBER}-${scmVars.BRANCH}-${scmVars.VERSION}-${scmVars.ACTUAL_COMMIT}-amd64"
+                                                        sh """
+                                                            /kaniko/executor \\
+                                                              -f `pwd`/${bc.getDockerFile()} \\
+                                                              -c `pwd`/${bc.getContext()} \\
+                                                              --build-arg WORK_DIR=${workDir} \\
+                                                              --build-arg token=\$GIT_ACCESS_TOKEN \\
+                                                              ${reactAppPublicPathArg} \\
+                                                              --build-arg nexusUsername=\$NEXUS_USERNAME \\
+                                                              --build-arg nexusPassword=\$NEXUS_PASSWORD \\
+                                                              --build-arg ciDbUsername=\$CI_DB_USER \\
+                                                              --build-arg ciDbpassword=\$CI_DB_PWD \\
+                                                              --cache=true --cache-dir=/cache --cache-repo=egovio/cache \\
+                                                              --destination=${amd64Image} \\
+                                                              --destination=${gcrImage} \\
+                                                              --no-push=${noPushImage}
+                                                        """
+                                                        echo "${amd64Image} and ${gcrImage} pushed!"
+                                                    } else {
+                                                        sh """
+                                                            /kaniko/executor \\
+                                                              -f `pwd`/${bc.getDockerFile()} \\
+                                                              -c `pwd`/${bc.getContext()} \\
+                                                              --build-arg WORK_DIR=${workDir} \\
+                                                              --build-arg token=\$GIT_ACCESS_TOKEN \\
+                                                              ${reactAppPublicPathArg} \\
+                                                              --build-arg nexusUsername=\$NEXUS_USERNAME \\
+                                                              --build-arg nexusPassword=\$NEXUS_PASSWORD \\
+                                                              --build-arg ciDbUsername=\$CI_DB_USER \\
+                                                              --build-arg ciDbpassword=\$CI_DB_PWD \\
+                                                              --cache=true --cache-dir=/cache --cache-repo=egovio/cache \\
+                                                              --destination=${amd64Image} \\
+                                                              --no-push=${noPushImage}
+                                                        """
+                                                        echo "${amd64Image} pushed!"
+                                                    }
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
-
-                        buildBranches["arm64 » ${bcLabel}"] = {
-                            podTemplate(yaml: """
+                        },
+                        'arm64': {
+                            for (int j = 0; j < buildConfigs.size(); j++) {
+                                final BuildConfig bc = buildConfigs.get(j)
+                                final String workDir = bc.getWorkDir().replaceFirst(getCommonBasePath(bc.getWorkDir(), bc.getDockerFile()), "./")
+                                final String arm64Image = "${finalRepoName}/${bc.getImageName()}:${baseTag}-arm64"
+                                final String bcLabel = bc.getImageName().endsWith('-db') ? 'db' : 'app'
+                                final def res = kanikoResources[bcLabel] ?: kanikoResources.app
+                                stage(bcLabel) {
+                                    podTemplate(yaml: """
 kind: Pod
 metadata:
   name: kaniko-arm64
@@ -299,34 +307,35 @@ spec:
             - key: dockerConfigJson
               path: config.json
 """) {
-                                node(POD_LABEL) {
-                                    checkout scm
-                                    container(name: 'kaniko', shell: '/busybox/sh') {
-                                        withEnv(["PATH=/busybox:/kaniko:$PATH"]) {
-                                            sh """
-                                                /kaniko/executor \\
-                                                  -f `pwd`/${bc.getDockerFile()} \\
-                                                  -c `pwd`/${bc.getContext()} \\
-                                                  --build-arg WORK_DIR=${workDir} \\
-                                                  --build-arg token=\$GIT_ACCESS_TOKEN \\
-                                                  ${reactAppPublicPathArg} \\
-                                                  --build-arg nexusUsername=\$NEXUS_USERNAME \\
-                                                  --build-arg nexusPassword=\$NEXUS_PASSWORD \\
-                                                  --build-arg ciDbUsername=\$CI_DB_USER \\
-                                                  --build-arg ciDbpassword=\$CI_DB_PWD \\
-                                                  --custom-platform=linux/arm64 \\
-                                                  --cache=true --cache-repo=egovio/cache-arm64 \\
-                                                  --destination=${arm64Image} \\
-                                                  --no-push=${noPushImage}
-                                            """
-                                            echo "${arm64Image} pushed!"
+                                        node(POD_LABEL) {
+                                            checkout scm
+                                            container(name: 'kaniko', shell: '/busybox/sh') {
+                                                withEnv(["PATH=/busybox:/kaniko:$PATH"]) {
+                                                    sh """
+                                                        /kaniko/executor \\
+                                                          -f `pwd`/${bc.getDockerFile()} \\
+                                                          -c `pwd`/${bc.getContext()} \\
+                                                          --build-arg WORK_DIR=${workDir} \\
+                                                          --build-arg token=\$GIT_ACCESS_TOKEN \\
+                                                          ${reactAppPublicPathArg} \\
+                                                          --build-arg nexusUsername=\$NEXUS_USERNAME \\
+                                                          --build-arg nexusPassword=\$NEXUS_PASSWORD \\
+                                                          --build-arg ciDbUsername=\$CI_DB_USER \\
+                                                          --build-arg ciDbpassword=\$CI_DB_PWD \\
+                                                          --custom-platform=linux/arm64 \\
+                                                          --cache=true --cache-repo=egovio/cache-arm64 \\
+                                                          --destination=${arm64Image} \\
+                                                          --no-push=${noPushImage}
+                                                    """
+                                                    echo "${arm64Image} pushed!"
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                    parallel(buildBranches)
+                    )
                 }
 
                 stage('Create multi-arch manifests') {
