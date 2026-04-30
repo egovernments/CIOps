@@ -381,17 +381,19 @@ ${finalLines.collect { "  ${it}" }.join('\n')}
 <style>
   body  { margin:0; padding:20px; background:#1e1e1e; color:#d4d4d4; font-family:'Courier New',monospace; font-size:13px; line-height:1.6; }
   .sep  { color:#555; }
-  .hdr  { color:#4ec9b0; font-weight:bold; margin-top:14px; }
+  .hdr  { color:#4ec9b0; font-weight:bold; font-size:15px; margin-top:14px; }
   .img  { color:#dcdcaa; padding-left:20px; }
 </style>
 </head>
 <body>
 <div class="sep">------------------------------------------------------------</div>
-<div class="hdr">AMD-64:</div>
+<div class="hdr"><b>AMD-64:</b></div>
 ${amd64Lines.collect { "<div class='img'>${it}</div>" }.join('\n')}
-<div class="hdr">ARM-64:</div>
+
+<div class="hdr"><b>ARM-64:</b></div>
 ${arm64Lines.collect { "<div class='img'>${it}</div>" }.join('\n')}
-<div class="hdr">FINAL (multi-arch):</div>
+
+<div class="hdr"><b>FINAL (multi-arch):</b></div>
 ${finalLines.collect { "<div class='img'>${it}</div>" }.join('\n')}
 <div class="sep">------------------------------------------------------------</div>
 </body>
