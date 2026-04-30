@@ -365,8 +365,10 @@ spec:
 Published images:
 AMD-64:
 ${amd64Lines.collect { "  ${it}" }.join('\n')}
+
 ARM-64:
 ${arm64Lines.collect { "  ${it}" }.join('\n')}
+
 FINAL (multi-arch):
 ${finalLines.collect { "  ${it}" }.join('\n')}
 ------------------------------------------------------------"""
