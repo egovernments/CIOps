@@ -371,7 +371,7 @@ FINAL (multi-arch):
 ${finalLines.collect { "  ${it}" }.join('\n')}
 ------------------------------------------------------------"""
 
-                    writeFile file: 'build-output.html', text: """<!DOCTYPE html>
+                    writeFile file: 'final-output.html', text: """<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -394,45 +394,10 @@ ${finalLines.collect { "<div class='img'>${it}</div>" }.join('\n')}
 <div class="sep">------------------------------------------------------------</div>
 </body>
 </html>"""
-
-                    publishHTML(target: [
-                        allowMissing         : false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll              : true,
-                        reportDir            : '.',
-                        reportFiles          : 'build-output.html',
-                        reportName           : 'Final Output',
-                        reportTitles         : 'Final Output'
-                    ])
+                    archive 'final-output.html'
                 }
             }
           } catch (Exception e) {
-              String errMsg = (e.getMessage() ?: e.getClass().getSimpleName()).take(1024)
-              writeFile file: 'build-output.html', text: """<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Final Output</title>
-<style>
-  body { margin:0; padding:20px; background:#1e1e1e; color:#d4d4d4; font-family:'Courier New',monospace; font-size:13px; line-height:1.6; }
-  .hdr { color:#f44747; font-weight:bold; }
-  .msg { color:#f48771; padding-left:20px; white-space:pre-wrap; word-break:break-all; }
-</style>
-</head>
-<body>
-<div class="hdr">FAILED:</div>
-<div class="msg">${errMsg.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')}</div>
-</body>
-</html>"""
-              publishHTML(target: [
-                  allowMissing         : true,
-                  alwaysLinkToLastBuild: true,
-                  keepAll              : true,
-                  reportDir            : '.',
-                  reportFiles          : 'build-output.html',
-                  reportName           : 'Final Output',
-                  reportTitles         : 'Final Output'
-              ])
               throw e
           }
         }
