@@ -394,7 +394,7 @@ ${finalLines.collect { "<div class='img'>${it}</div>" }.join('\n')}
 <div class="sep">------------------------------------------------------------</div>
 </body>
 </html>"""
-                    archive 'final-output.html'
+                    archiveArtifacts artifacts: 'final-output.html', allowEmptyArchive: false
                 }
             }
           } catch (Exception e) {
