@@ -52,6 +52,7 @@ spec:
 """
     ) {
         node(POD_LABEL) {
+          try {
 
             def scmVars = checkout scm
             String REPO_NAME = env.REPO_NAME ? env.REPO_NAME : "docker.io/egovio"
@@ -98,6 +99,7 @@ spec:
                                 final String bcLabel = bc.getImageName().endsWith('-db') ? 'db' : 'app'
                                 final def res = kanikoResources[bcLabel] ?: kanikoResources.app
                                 amd64Branches[bcLabel] = {
+                                    stage(bcLabel) {
                                     podTemplate(yaml: """
 kind: Pod
 metadata:
@@ -232,6 +234,7 @@ spec:
                                             }
                                         }
                                     }
+                                    } // stage(bcLabel)
                                 }
                             }
                             parallel(amd64Branches)
@@ -245,6 +248,7 @@ spec:
                                 final String bcLabel = bc.getImageName().endsWith('-db') ? 'db' : 'app'
                                 final def res = kanikoResources[bcLabel] ?: kanikoResources.app
                                 arm64Branches[bcLabel] = {
+                                    stage(bcLabel) {
                                     podTemplate(yaml: """
 kind: Pod
 metadata:
@@ -333,6 +337,7 @@ spec:
                                             }
                                         }
                                     }
+                                    } // stage(bcLabel)
                                 }
                             }
                             parallel(arm64Branches)
@@ -359,7 +364,7 @@ spec:
                             arm64Lines << "  ${arm64Img}"
                             finalLines << "  ${multiArchImage}"
                         }
-                        echo """
+                        String consoleOutput = """
 ------------------------------------------------------------
 Published images:
 AMD-64:
@@ -369,9 +374,19 @@ ${arm64Lines.join('\n')}
 FINAL (multi-arch):
 ${finalLines.join('\n')}
 ------------------------------------------------------------"""
+                        echo consoleOutput
+                        currentBuild.description = """<b>AMD-64:</b><br/>${amd64Lines.join('<br/>')}
+<br/><b>ARM-64:</b><br/>${arm64Lines.join('<br/>')}
+<br/><b>FINAL (multi-arch):</b><br/>${finalLines.join('<br/>')}"""
                     }
                 }
             }
+          } catch (Exception e) {
+              String errMsg = e.getMessage() ?: e.getClass().getSimpleName()
+              // Trim to avoid overflowing the description field with a full stack trace
+              currentBuild.description = "<b>FAILED:</b><br/>${errMsg.take(1024)}"
+              throw e
+          }
         }
     }
 
