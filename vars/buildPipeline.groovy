@@ -24,11 +24,14 @@ spec:
     - cat
     tty: true
   - name: manifest
-    image: docker:26-cli
+    image: gcr.io/go-containerregistry/crane:debug
     imagePullPolicy: IfNotPresent
     command:
-    - cat
+    - /busybox/sh
     tty: true
+    env:
+      - name: DOCKER_CONFIG
+        value: /root/.docker
     volumeMounts:
       - name: jenkins-docker-cfg
         mountPath: /root/.docker
@@ -197,7 +200,6 @@ spec:
                                                           --build-arg ciDbUsername=\$CI_DB_USER \\
                                                           --build-arg ciDbpassword=\$CI_DB_PWD \\
                                                           --cache=true --cache-dir=/cache --cache-repo=egovio/cache \\
-                                                          --single-snapshot=true --snapshotMode=time \\
                                                           --destination=${amd64Image} \\
                                                           --destination=${gcrImage} \\
                                                           --no-push=${noPushImage}
@@ -216,7 +218,6 @@ spec:
                                                           --build-arg ciDbUsername=\$CI_DB_USER \\
                                                           --build-arg ciDbpassword=\$CI_DB_PWD \\
                                                           --cache=true --cache-dir=/cache --cache-repo=egovio/cache \\
-                                                          --single-snapshot=true --snapshotMode=time \\
                                                           --destination=${amd64Image} \\
                                                           --no-push=${noPushImage}
                                                     """
@@ -308,7 +309,6 @@ spec:
                                                       --build-arg ciDbpassword=\$CI_DB_PWD \\
                                                       --custom-platform=linux/arm64 \\
                                                       --cache=true --cache-repo=egovio/cache-arm64 \\
-                                                      --single-snapshot=true --snapshotMode=time \\
                                                       --destination=${arm64Image} \\
                                                       --no-push=${noPushImage}
                                                 """
@@ -323,14 +323,14 @@ spec:
                 }
 
                 stage('Create multi-arch manifests') {
-                    container(name: 'manifest', shell: '/bin/sh') {
+                    container(name: 'manifest', shell: '/busybox/sh') {
                         for (BuildConfig bc : buildConfigs) {
                             String multiArchImage = "${REPO_NAME}/${bc.getImageName()}:${baseTag}"
                             sh """
-                                docker buildx imagetools create \\
+                                /ko-app/crane index append \\
                                   --tag ${multiArchImage} \\
-                                  ${REPO_NAME}/${bc.getImageName()}:${baseTag}-amd64 \\
-                                  ${REPO_NAME}/${bc.getImageName()}:${baseTag}-arm64
+                                  -m ${REPO_NAME}/${bc.getImageName()}:${baseTag}-amd64 \\
+                                  -m ${REPO_NAME}/${bc.getImageName()}:${baseTag}-arm64
                             """
                             echo "${multiArchImage} (multi-arch manifest) created!"
                         }

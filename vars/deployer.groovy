@@ -11,7 +11,7 @@ spec:
     fsGroup: 1000
   containers:
   - name: egov-deployer
-    image: egovio/egov-deployer:vapt-security-check-3
+    image: egovio/egov-deployer:vapt-security-check-4
     command:
     - cat
     tty: true
@@ -56,7 +56,7 @@ spec:
                 stage('Deploy Images') {
                         container(name: 'egov-deployer', shell: '/bin/sh') {
                             sh """
-                                /opt/egov/egov-deployer deploy --helm-dir `pwd`/${pipelineParams.helmDir} -c=${env.CLUSTER_CONFIGS}  -e ${pipelineParams.environment} "${env.IMAGES}"
+                                /opt/egov/egov-deployer deploy --helm-dir `pwd`/${pipelineParams.helmDir} -c=${env.CLUSTER_CONFIGS} -e ${pipelineParams.environment} "${env.IMAGES}"
                             """
                             }
                 }
