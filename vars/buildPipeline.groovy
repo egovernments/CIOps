@@ -122,11 +122,6 @@ spec:
           secretKeyRef:
             name: jenkins-credentials
             key: gitReadAccessToken
-      - name: token
-        valueFrom:
-          secretKeyRef:
-            name: jenkins-credentials
-            key: gitReadAccessToken
       - name: "GOOGLE_APPLICATION_CREDENTIALS"
         value: "/var/run/secret/cloud.google.com/service-account.json"
       - name: NEXUS_USERNAME
@@ -152,8 +147,6 @@ spec:
     volumeMounts:
       - name: jenkins-docker-cfg
         mountPath: /kaniko/.docker
-      - name: kaniko-cache
-        mountPath: /cache
       - name: service-account
         mountPath: /var/run/secret/cloud.google.com
     resources:
@@ -164,10 +157,6 @@ spec:
         cpu: "${res.limits.cpu}"
         memory: "${res.limits.memory}"
   volumes:
-  - name: kaniko-cache
-    persistentVolumeClaim:
-      claimName: kaniko-cache-claim
-      readOnly: true
   - name: service-account
     projected:
       sources:
@@ -205,7 +194,8 @@ spec:
                                                               --build-arg nexusPassword=\$NEXUS_PASSWORD \\
                                                               --build-arg ciDbUsername=\$CI_DB_USER \\
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
-                                                              --cache=true --cache-dir=/cache --cache-repo=egovio/cache \\
+                                                              --custom-platform=linux/amd64 \\
+                                                              --cache=true --cache-repo=egovio/cache \\
                                                               --destination=${amd64Image} \\
                                                               --destination=${gcrImage} \\
                                                               --no-push=${noPushImage}
@@ -223,7 +213,8 @@ spec:
                                                               --build-arg nexusPassword=\$NEXUS_PASSWORD \\
                                                               --build-arg ciDbUsername=\$CI_DB_USER \\
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
-                                                              --cache=true --cache-dir=/cache --cache-repo=egovio/cache \\
+                                                              --custom-platform=linux/amd64 \\
+                                                              --cache=true --cache-repo=egovio/cache-amd64 \\
                                                               --destination=${amd64Image} \\
                                                               --no-push=${noPushImage}
                                                         """
@@ -267,6 +258,8 @@ spec:
           secretKeyRef:
             name: jenkins-credentials
             key: gitReadAccessToken
+      - name: "GOOGLE_APPLICATION_CREDENTIALS"
+        value: "/var/run/secret/cloud.google.com/service-account.json"
       - name: NEXUS_USERNAME
         valueFrom:
           secretKeyRef:
@@ -290,6 +283,8 @@ spec:
     volumeMounts:
       - name: jenkins-docker-cfg
         mountPath: /kaniko/.docker
+      - name: service-account
+        mountPath: /var/run/secret/cloud.google.com
     resources:
       requests:
         cpu: "${res.requests.cpu}"
@@ -298,6 +293,14 @@ spec:
         cpu: "${res.limits.cpu}"
         memory: "${res.limits.memory}"
   volumes:
+  - name: service-account
+    projected:
+      sources:
+      - secret:
+          name: jenkins-credentials
+          items:
+            - key: gcpServiceAccount
+              path: service-account.json
   - name: jenkins-docker-cfg
     projected:
       sources:
@@ -309,25 +312,49 @@ spec:
 """) {
                                         node(POD_LABEL) {
                                             checkout scm
+                                            if (!fileExists(bc.getWorkDir()) || !fileExists(bc.getDockerFile()))
+                                                throw new Exception("Working directory / dockerfile does not exist!")
                                             container(name: 'kaniko', shell: '/busybox/sh') {
                                                 withEnv(["PATH=/busybox:/kaniko:$PATH"]) {
-                                                    sh """
-                                                        /kaniko/executor \\
-                                                          -f `pwd`/${bc.getDockerFile()} \\
-                                                          -c `pwd`/${bc.getContext()} \\
-                                                          --build-arg WORK_DIR=${workDir} \\
-                                                          --build-arg token=\$GIT_ACCESS_TOKEN \\
-                                                          ${reactAppPublicPathArg} \\
-                                                          --build-arg nexusUsername=\$NEXUS_USERNAME \\
-                                                          --build-arg nexusPassword=\$NEXUS_PASSWORD \\
-                                                          --build-arg ciDbUsername=\$CI_DB_USER \\
-                                                          --build-arg ciDbpassword=\$CI_DB_PWD \\
-                                                          --custom-platform=linux/arm64 \\
-                                                          --cache=true --cache-repo=egovio/cache-arm64 \\
-                                                          --destination=${arm64Image} \\
-                                                          --no-push=${noPushImage}
-                                                    """
-                                                    echo "${arm64Image} pushed!"
+                                                    if (altRepoPush.equalsIgnoreCase("true")) {
+                                                        final String gcrImage = "${finalGcrRepoName}/${bc.getImageName()}:${env.BUILD_NUMBER}-${scmVars.BRANCH}-${scmVars.VERSION}-${scmVars.ACTUAL_COMMIT}-arm64"
+                                                        sh """
+                                                            /kaniko/executor \\
+                                                              -f `pwd`/${bc.getDockerFile()} \\
+                                                              -c `pwd`/${bc.getContext()} \\
+                                                              --build-arg WORK_DIR=${workDir} \\
+                                                              --build-arg token=\$GIT_ACCESS_TOKEN \\
+                                                              ${reactAppPublicPathArg} \\
+                                                              --build-arg nexusUsername=\$NEXUS_USERNAME \\
+                                                              --build-arg nexusPassword=\$NEXUS_PASSWORD \\
+                                                              --build-arg ciDbUsername=\$CI_DB_USER \\
+                                                              --build-arg ciDbpassword=\$CI_DB_PWD \\
+                                                              --custom-platform=linux/arm64 \\
+                                                              --cache=true --cache-repo=egovio/cache-arm64 \\
+                                                              --destination=${arm64Image} \\
+                                                              --destination=${gcrImage} \\
+                                                              --no-push=${noPushImage}
+                                                        """
+                                                        echo "${arm64Image} and ${gcrImage} pushed!"
+                                                    } else {
+                                                        sh """
+                                                            /kaniko/executor \\
+                                                              -f `pwd`/${bc.getDockerFile()} \\
+                                                              -c `pwd`/${bc.getContext()} \\
+                                                              --build-arg WORK_DIR=${workDir} \\
+                                                              --build-arg token=\$GIT_ACCESS_TOKEN \\
+                                                              ${reactAppPublicPathArg} \\
+                                                              --build-arg nexusUsername=\$NEXUS_USERNAME \\
+                                                              --build-arg nexusPassword=\$NEXUS_PASSWORD \\
+                                                              --build-arg ciDbUsername=\$CI_DB_USER \\
+                                                              --build-arg ciDbpassword=\$CI_DB_PWD \\
+                                                              --custom-platform=linux/arm64 \\
+                                                              --cache=true --cache-repo=egovio/cache-arm64 \\
+                                                              --destination=${arm64Image} \\
+                                                              --no-push=${noPushImage}
+                                                        """
+                                                        echo "${arm64Image} pushed!"
+                                                    }
                                                 }
                                             }
                                         }
@@ -389,10 +416,10 @@ ${finalLines.collect { "  ${it}" }.join('\n')}
 <div class="sep">------------------------------------------------------------</div>
 <div class="hdr"><b>AMD-64:</b></div>
 ${amd64Lines.collect { "<div class='img'>${it}</div>" }.join('\n')}
-
+<br>
 <div class="hdr"><b>ARM-64:</b></div>
 ${arm64Lines.collect { "<div class='img'>${it}</div>" }.join('\n')}
-
+<br>
 <div class="hdr"><b>FINAL (multi-arch):</b></div>
 ${finalLines.collect { "<div class='img'>${it}</div>" }.join('\n')}
 <div class="sep">------------------------------------------------------------</div>
