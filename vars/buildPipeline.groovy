@@ -195,7 +195,7 @@ spec:
                                                               --build-arg ciDbUsername=\$CI_DB_USER \\
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
                                                               --custom-platform=linux/amd64 \\
-                                                              --cache=true --cache-repo=egovio/cache \\
+                                                              --cache=true --cache-repo=egovio/cache-amd64 \\
                                                               --destination=${amd64Image} \\
                                                               --destination=${gcrImage} \\
                                                               --no-push=${noPushImage}
