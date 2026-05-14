@@ -9,6 +9,13 @@ metadata:
 spec:
   securityContext:
     fsGroup: 1000
+  nodeSelector:
+    dedicated: egov-jenkins
+  tolerations:
+    - effect: NoSchedule
+      key: dedicated
+      operator: Equal
+      value: egov-jenkins
   containers:
   - name: egov-deployer
     image: egovio/egov-deployer:vapt-security-check-4

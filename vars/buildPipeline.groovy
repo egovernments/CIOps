@@ -21,6 +21,13 @@ metadata:
 spec:
   securityContext:
     fsGroup: 0
+  nodeSelector:
+    dedicated: egov-jenkins
+  tolerations:
+    - effect: NoSchedule
+      key: dedicated
+      operator: Equal
+      value: egov-jenkins
   containers:
   - name: git
     image: docker.io/egovio/builder:2-64da60a1-version_script_update-NA
@@ -106,6 +113,13 @@ metadata:
 spec:
   securityContext:
     fsGroup: 0
+  nodeSelector:
+    dedicated: egov-jenkins
+  tolerations:
+    - effect: NoSchedule
+      key: dedicated
+      operator: Equal
+      value: egov-jenkins
   containers:
   - name: kaniko
     image: gcr.io/kaniko-project/executor:v1.23.2-debug
@@ -242,6 +256,13 @@ metadata:
 spec:
   securityContext:
     fsGroup: 0
+  nodeSelector:
+    dedicated: egov-jenkins
+  tolerations:
+    - effect: NoSchedule
+      key: dedicated
+      operator: Equal
+      value: egov-jenkins
   containers:
   - name: kaniko
     image: gcr.io/kaniko-project/executor:v1.23.2-debug

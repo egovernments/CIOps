@@ -10,6 +10,13 @@ kind: Pod
 metadata:
   name: build-utils
 spec:
+  nodeSelector:
+    dedicated: egov-jenkins
+  tolerations:
+    - effect: NoSchedule
+      key: dedicated
+      operator: Equal
+      value: egov-jenkins
   containers:
   - name: build-utils
     image: egovio/build-utils:7-master-95e76687
