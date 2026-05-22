@@ -158,6 +158,10 @@ spec:
           secretKeyRef:
             name: jenkins-credentials
             key: ciDbpassword
+      - name: REGISTRY_MIRROR_HOST
+        valueFrom:
+          fieldRef:
+            fieldPath: status.hostIP
     volumeMounts:
       - name: jenkins-docker-cfg
         mountPath: /kaniko/.docker
@@ -208,6 +212,7 @@ spec:
                                                               --build-arg nexusPassword=\$NEXUS_PASSWORD \\
                                                               --build-arg ciDbUsername=\$CI_DB_USER \\
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
+                                                              --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/amd64 \\
                                                               --cache=true --cache-repo=egovio/cache-amd64 \\
                                                               --destination=${amd64Image} \\
@@ -227,6 +232,7 @@ spec:
                                                               --build-arg nexusPassword=\$NEXUS_PASSWORD \\
                                                               --build-arg ciDbUsername=\$CI_DB_USER \\
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
+                                                              --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/amd64 \\
                                                               --cache=true --cache-repo=egovio/cache-amd64 \\
                                                               --destination=${amd64Image} \\
@@ -301,6 +307,10 @@ spec:
           secretKeyRef:
             name: jenkins-credentials
             key: ciDbpassword
+      - name: REGISTRY_MIRROR_HOST
+        valueFrom:
+          fieldRef:
+            fieldPath: status.hostIP
     volumeMounts:
       - name: jenkins-docker-cfg
         mountPath: /kaniko/.docker
@@ -350,6 +360,7 @@ spec:
                                                               --build-arg nexusPassword=\$NEXUS_PASSWORD \\
                                                               --build-arg ciDbUsername=\$CI_DB_USER \\
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
+                                                              --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/arm64 \\
                                                               --cache=true --cache-repo=egovio/cache-arm64 \\
                                                               --destination=${arm64Image} \\
@@ -369,6 +380,7 @@ spec:
                                                               --build-arg nexusPassword=\$NEXUS_PASSWORD \\
                                                               --build-arg ciDbUsername=\$CI_DB_USER \\
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
+                                                              --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/arm64 \\
                                                               --cache=true --cache-repo=egovio/cache-arm64 \\
                                                               --destination=${arm64Image} \\
