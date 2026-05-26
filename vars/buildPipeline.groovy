@@ -61,7 +61,7 @@ spec:
         node(POD_LABEL) {
           try {
 
-            def scmVars = checkout scm
+            def scmVars = shallowCheckout()
             String REPO_NAME = env.REPO_NAME ? env.REPO_NAME : "docker.io/egovio"
             String GCR_REPO_NAME = "asia.gcr.io/digit-egov"
             def yaml = readYaml file: pipelineParams.configFile
@@ -193,7 +193,7 @@ spec:
               path: config.json
 """) {
                                         node(POD_LABEL) {
-                                            checkout scm
+                                            shallowCheckout()
                                             echo "${bc.getWorkDir()} ${bc.getDockerFile()}"
                                             if (!fileExists(bc.getWorkDir()) || !fileExists(bc.getDockerFile()))
                                                 throw new Exception("Working directory / dockerfile does not exist!")
@@ -214,7 +214,7 @@ spec:
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
                                                               --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/amd64 \\
-                                                              --cache=true --cache-repo=egovio/cache-amd64 \\
+                                                              --cache=true --cache-repo=349271159511.dkr.ecr.ap-south-1.amazonaws.com/kaniko-cache-amd64 \\
                                                               --destination=${amd64Image} \\
                                                               --destination=${gcrImage} \\
                                                               --no-push=${noPushImage}
@@ -234,7 +234,7 @@ spec:
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
                                                               --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/amd64 \\
-                                                              --cache=true --cache-repo=egovio/cache-amd64 \\
+                                                              --cache=true --cache-repo=349271159511.dkr.ecr.ap-south-1.amazonaws.com/kaniko-cache-amd64 \\
                                                               --destination=${amd64Image} \\
                                                               --no-push=${noPushImage}
                                                         """
@@ -342,7 +342,7 @@ spec:
               path: config.json
 """) {
                                         node(POD_LABEL) {
-                                            checkout scm
+                                            shallowCheckout()
                                             if (!fileExists(bc.getWorkDir()) || !fileExists(bc.getDockerFile()))
                                                 throw new Exception("Working directory / dockerfile does not exist!")
                                             container(name: 'kaniko', shell: '/busybox/sh') {
@@ -362,7 +362,7 @@ spec:
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
                                                               --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/arm64 \\
-                                                              --cache=true --cache-repo=egovio/cache-arm64 \\
+                                                              --cache=true --cache-repo=349271159511.dkr.ecr.ap-south-1.amazonaws.com/kaniko-cache-arm64 \\
                                                               --destination=${arm64Image} \\
                                                               --destination=${gcrImage} \\
                                                               --no-push=${noPushImage}
@@ -382,7 +382,7 @@ spec:
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
                                                               --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/arm64 \\
-                                                              --cache=true --cache-repo=egovio/cache-arm64 \\
+                                                              --cache=true --cache-repo=349271159511.dkr.ecr.ap-south-1.amazonaws.com/kaniko-cache-arm64 \\
                                                               --destination=${arm64Image} \\
                                                               --no-push=${noPushImage}
                                                         """
@@ -467,4 +467,15 @@ ${finalLines.collect { "<div class='img'>${it}</div>" }.join('\n')}
         }
     }
 
+}
+
+private def shallowCheckout() {
+    checkout([
+        $class: 'GitSCM',
+        branches: scm.branches,
+        extensions: [
+            [$class: 'CloneOption', depth: 1, shallow: true, noTags: true],
+        ],
+        userRemoteConfigs: scm.userRemoteConfigs
+    ])
 }
