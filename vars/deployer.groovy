@@ -59,14 +59,18 @@ spec:
 """
     ) {
         node(POD_LABEL) {
-            git url: pipelineParams.repo, branch: pipelineParams.branch, credentialsId: 'git_read'
+            try {
+                git url: pipelineParams.repo, branch: pipelineParams.branch, credentialsId: 'git_read'
                 stage('Deploy Images') {
-                        container(name: 'egov-deployer', shell: '/bin/sh') {
-                            sh """
-                                /opt/egov/egov-deployer deploy --helm-dir `pwd`/${pipelineParams.helmDir} -c=${env.CLUSTER_CONFIGS} -e ${pipelineParams.environment} "${env.IMAGES}"
-                            """
-                            }
+                    container(name: 'egov-deployer', shell: '/bin/sh') {
+                        sh """
+                            /opt/egov/egov-deployer deploy --helm-dir `pwd`/${pipelineParams.helmDir} -c=${env.CLUSTER_CONFIGS} -e ${pipelineParams.environment} "${env.IMAGES}"
+                        """
+                    }
                 }
+            } finally {
+                cleanWs()
+            }
         }
     }
 

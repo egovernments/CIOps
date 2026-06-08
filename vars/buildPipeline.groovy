@@ -463,6 +463,8 @@ ${finalLines.collect { "<div class='img'>${it}</div>" }.join('\n')}
             }
           } catch (Exception e) {
               throw e
+          } finally {
+              cleanWs()
           }
         }
     }

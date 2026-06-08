@@ -49,7 +49,8 @@ spec:
 """
     ) {
         node(POD_LABEL) {
-        
+        try {
+
         List<String> gitUrls = params.urls;
         String configFile = './build/build-config.yml';
         Map<String,List<JobConfig>> jobConfigMap=new HashMap<>();
@@ -145,7 +146,10 @@ spec:
                         }
                     }
         }
-                
+
+        } finally {
+            cleanWs()
+        }
 
     }
 
