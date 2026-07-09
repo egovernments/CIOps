@@ -18,7 +18,7 @@ spec:
       value: egov-jenkins
   containers:
   - name: egov-deployer
-    image: egovio/egov-deployer:vapt-security-check-4
+    image: egovio/egov-deployer:azure-deploy
     command:
     - cat
     tty: true
