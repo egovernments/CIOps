@@ -51,19 +51,54 @@ spec:
         node(POD_LABEL) {
         try {
 
-        List<String> gitUrls = params.urls;
+        // Two calling conventions are supported:
+        //   jobBuilder(urls:  ['git@host:org/repo.git', ...])                 <- legacy
+        //   jobBuilder(repos: [[url:'git@host:org/repo.git', branch:'main']])  <- per-repo branch
+        // 'urls' is normalised into the 'repos' shape with an empty branch, so
+        // existing callers keep working untouched.
+        List repoSpecs = params.repos ?: (params.urls ?: []).collect { [url: it, branch: ''] };
         String configFile = './build/build-config.yml';
         Map<String,List<JobConfig>> jobConfigMap=new HashMap<>();
+        Map<String,String> branchByUrl = new HashMap<>();
         StringBuilder jobDslScript = new StringBuilder();
         List<String> allJobConfigs = new ArrayList<>();
 
-        for (int i = 0; i < gitUrls.size(); i++) {
-            String dirName = Utils.getDirName(gitUrls[i]);
+        for (int i = 0; i < repoSpecs.size(); i++) {
+            String gitUrl = repoSpecs[i].url;
+            String wanted = repoSpecs[i].branch ?: '';
+            String dirName = Utils.getDirName(gitUrl);
+            String usedBranch = wanted;
             dir(dirName) {
-                 git url: gitUrls[i], credentialsId: 'git_read'
+                 if (wanted) {
+                     git url: gitUrl, branch: wanted, credentialsId: 'git_read'
+                 } else {
+                     // No branch configured. Attempt 'master' first -- that is what
+                     // `git url:` defaulted to before this change, so every repo that
+                     // built successfully before still resolves identically here.
+                     // Only if 'master' is absent do we consult the remote's default
+                     // branch (covers repos that live on 'main', 'develop', etc).
+                     try {
+                         git url: gitUrl, branch: 'master', credentialsId: 'git_read'
+                         usedBranch = 'master'
+                     } catch (Exception e) {
+                         String resolved = ''
+                         // ssh-agent plugin is not installed; sshUserPrivateKey from
+                         // ssh-credentials + credentials-binding gives us the key file.
+                         withCredentials([sshUserPrivateKey(credentialsId: 'git_read', keyFileVariable: 'GIT_KEY')]) {
+                             resolved = sh(returnStdout: true, script: 'GIT_SSH_COMMAND="ssh -i $GIT_KEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" git ls-remote --symref ' + gitUrl + ' HEAD 2>/dev/null | awk \'/^ref:/ {sub("refs/heads/","",$2); print $2; exit}\'').trim()
+                         }
+                         if (!resolved) {
+                             error("jobBuilder: no 'master' branch on ${gitUrl} and the remote default branch could not be resolved. Set an explicit branch for this repo in jobBuilder.repos.")
+                         }
+                         echo "jobBuilder: ${gitUrl} has no 'master'; using remote default branch '${resolved}'"
+                         git url: gitUrl, branch: resolved, credentialsId: 'git_read'
+                         usedBranch = resolved
+                     }
+                 }
                  def yaml = readYaml file: configFile;
                  List<JobConfig> jobConfigs = ConfigParser.populateConfigs(yaml.config, env);
-                 jobConfigMap.put(gitUrls[i],jobConfigs);
+                 jobConfigMap.put(gitUrl,jobConfigs);
+                 branchByUrl.put(gitUrl, usedBranch);
                  allJobConfigs.addAll(jobConfigs);
             }
         }
@@ -81,6 +116,11 @@ spec:
         for (Map.Entry<Integer, String> entry : jobConfigMap.entrySet()) {   
 
             List<JobConfig> jobConfigs = entry.getValue();
+            // Default the generated job's BRANCH param to the branch this repo was
+            // actually read from, instead of a hardcoded 'origin/master' (which is
+            // wrong for repos whose default branch is 'main'). Falls back to
+            // 'master' so behaviour is unchanged for repos resolved that way.
+            String jobBranch = branchByUrl.get(entry.getKey()) ?: 'master';
 
         for (int i = 0; i < jobConfigs.size(); i++) {
 
@@ -101,7 +141,7 @@ spec:
                         description('') 
                         branch('')      
                         useRepository('')                     
-                        defaultValue('origin/master') 
+                        defaultValue('origin/${jobBranch}')
                         branchFilter('.*')
                         tagFilter('*')
                         sortMode('ASCENDING_SMART')
