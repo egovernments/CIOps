@@ -214,6 +214,7 @@ spec:
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
                                                               --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/amd64 \\
+                                                              --snapshot-mode=redo \\
                                                               --cache=true --cache-repo=349271159511.dkr.ecr.ap-south-1.amazonaws.com/kaniko-cache-amd64 \\
                                                               --destination=${amd64Image} \\
                                                               --destination=${gcrImage} \\
@@ -234,6 +235,7 @@ spec:
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
                                                               --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/amd64 \\
+                                                              --snapshot-mode=redo \\
                                                               --cache=true --cache-repo=349271159511.dkr.ecr.ap-south-1.amazonaws.com/kaniko-cache-amd64 \\
                                                               --destination=${amd64Image} \\
                                                               --no-push=${noPushImage}
@@ -362,6 +364,7 @@ spec:
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
                                                               --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/arm64 \\
+                                                              --snapshot-mode=redo \\
                                                               --cache=true --cache-repo=349271159511.dkr.ecr.ap-south-1.amazonaws.com/kaniko-cache-arm64 \\
                                                               --destination=${arm64Image} \\
                                                               --destination=${gcrImage} \\
@@ -382,6 +385,7 @@ spec:
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
                                                               --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/arm64 \\
+                                                              --snapshot-mode=redo \\
                                                               --cache=true --cache-repo=349271159511.dkr.ecr.ap-south-1.amazonaws.com/kaniko-cache-arm64 \\
                                                               --destination=${arm64Image} \\
                                                               --no-push=${noPushImage}
