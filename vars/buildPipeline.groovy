@@ -138,6 +138,18 @@ spec:
             key: gitReadAccessToken
       - name: "GOOGLE_APPLICATION_CREDENTIALS"
         value: "/var/run/secret/cloud.google.com/service-account.json"
+      - name: "AWS_ACCESS_KEY_ID"
+        valueFrom:
+          secretKeyRef:
+            name: jenkins-credentials
+            key: awsAccessKeyId
+      - name: "AWS_SECRET_ACCESS_KEY"
+        valueFrom:
+          secretKeyRef:
+            name: jenkins-credentials
+            key: awsSecretAccessKey
+      - name: "AWS_DEFAULT_REGION"
+        value: "ap-south-1"
       - name: NEXUS_USERNAME
         valueFrom:
           secretKeyRef:
@@ -289,6 +301,18 @@ spec:
             key: gitReadAccessToken
       - name: "GOOGLE_APPLICATION_CREDENTIALS"
         value: "/var/run/secret/cloud.google.com/service-account.json"
+      - name: "AWS_ACCESS_KEY_ID"
+        valueFrom:
+          secretKeyRef:
+            name: jenkins-credentials
+            key: awsAccessKeyId
+      - name: "AWS_SECRET_ACCESS_KEY"
+        valueFrom:
+          secretKeyRef:
+            name: jenkins-credentials
+            key: awsSecretAccessKey
+      - name: "AWS_DEFAULT_REGION"
+        value: "ap-south-1"
       - name: NEXUS_USERNAME
         valueFrom:
           secretKeyRef:

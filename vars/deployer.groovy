@@ -30,6 +30,20 @@ spec:
         value: "/var/run/secret/cloud.google.com/service-account.json"
       - name: "KUBECONFIG"
         value: "/tmp/kube-config/config"
+      # AWS creds for SOPS to decrypt AWS-KMS-encrypted secrets. On EKS the node
+      # instance profile provided these implicitly; on AKS they must be supplied.
+      - name: "AWS_ACCESS_KEY_ID"
+        valueFrom:
+          secretKeyRef:
+            name: jenkins-credentials
+            key: awsAccessKeyId
+      - name: "AWS_SECRET_ACCESS_KEY"
+        valueFrom:
+          secretKeyRef:
+            name: jenkins-credentials
+            key: awsSecretAccessKey
+      - name: "AWS_DEFAULT_REGION"
+        value: "ap-south-1"
     volumeMounts:
       - name: service-account
         mountPath: /var/run/secret/cloud.google.com
