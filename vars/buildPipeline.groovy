@@ -170,10 +170,6 @@ spec:
           secretKeyRef:
             name: jenkins-credentials
             key: ciDbpassword
-      - name: REGISTRY_MIRROR_HOST
-        valueFrom:
-          fieldRef:
-            fieldPath: status.hostIP
     volumeMounts:
       - name: jenkins-docker-cfg
         mountPath: /kaniko/.docker
@@ -224,10 +220,9 @@ spec:
                                                               --build-arg nexusPassword=\$NEXUS_PASSWORD \\
                                                               --build-arg ciDbUsername=\$CI_DB_USER \\
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
-                                                              --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/amd64 \\
                                                               --snapshot-mode=redo \\
-                                                              --cache=true --cache-repo=349271159511.dkr.ecr.ap-south-1.amazonaws.com/kaniko-cache-amd64 \\
+                                                              --cache=true --cache-repo=docker.io/egovio/kaniko-cache-amd64 \\
                                                               --destination=${amd64Image} \\
                                                               --destination=${gcrImage} \\
                                                               --no-push=${noPushImage}
@@ -245,10 +240,9 @@ spec:
                                                               --build-arg nexusPassword=\$NEXUS_PASSWORD \\
                                                               --build-arg ciDbUsername=\$CI_DB_USER \\
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
-                                                              --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/amd64 \\
                                                               --snapshot-mode=redo \\
-                                                              --cache=true --cache-repo=349271159511.dkr.ecr.ap-south-1.amazonaws.com/kaniko-cache-amd64 \\
+                                                              --cache=true --cache-repo=docker.io/egovio/kaniko-cache-amd64 \\
                                                               --destination=${amd64Image} \\
                                                               --no-push=${noPushImage}
                                                         """
@@ -333,10 +327,6 @@ spec:
           secretKeyRef:
             name: jenkins-credentials
             key: ciDbpassword
-      - name: REGISTRY_MIRROR_HOST
-        valueFrom:
-          fieldRef:
-            fieldPath: status.hostIP
     volumeMounts:
       - name: jenkins-docker-cfg
         mountPath: /kaniko/.docker
@@ -386,10 +376,9 @@ spec:
                                                               --build-arg nexusPassword=\$NEXUS_PASSWORD \\
                                                               --build-arg ciDbUsername=\$CI_DB_USER \\
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
-                                                              --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/arm64 \\
                                                               --snapshot-mode=redo \\
-                                                              --cache=true --cache-repo=349271159511.dkr.ecr.ap-south-1.amazonaws.com/kaniko-cache-arm64 \\
+                                                              --cache=true --cache-repo=docker.io/egovio/kaniko-cache-arm64 \\
                                                               --destination=${arm64Image} \\
                                                               --destination=${gcrImage} \\
                                                               --no-push=${noPushImage}
@@ -407,10 +396,9 @@ spec:
                                                               --build-arg nexusPassword=\$NEXUS_PASSWORD \\
                                                               --build-arg ciDbUsername=\$CI_DB_USER \\
                                                               --build-arg ciDbpassword=\$CI_DB_PWD \\
-                                                              --registry-mirror=\${REGISTRY_MIRROR_HOST}:5000 \\
                                                               --custom-platform=linux/arm64 \\
                                                               --snapshot-mode=redo \\
-                                                              --cache=true --cache-repo=349271159511.dkr.ecr.ap-south-1.amazonaws.com/kaniko-cache-arm64 \\
+                                                              --cache=true --cache-repo=docker.io/egovio/kaniko-cache-arm64 \\
                                                               --destination=${arm64Image} \\
                                                               --no-push=${noPushImage}
                                                         """
